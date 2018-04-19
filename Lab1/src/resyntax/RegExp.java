@@ -1,5 +1,8 @@
 package resyntax;
 
+import eNFAgraph.ENFA;
+import java.util.ArrayList;
+
 public abstract class RegExp {
     @Override
     public String toString() {
@@ -11,4 +14,6 @@ public abstract class RegExp {
         return strB;
     }
     public abstract void toStringBuilder(StringBuilder strB);
+
+    public abstract void toENFA(ENFA eAutomat);
 }

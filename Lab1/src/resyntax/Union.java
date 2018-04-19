@@ -1,5 +1,8 @@
 package resyntax;
 
+import eNFAgraph.ENFA;
+import eNFAgraph.ENFAnode;
+
 public class Union extends RegExp {
     public final RegExp r1, r2;
     public Union(RegExp r1, RegExp r2) {
@@ -7,11 +10,25 @@ public class Union extends RegExp {
         this.r2 = r2;
     }
 
+    @Override
     public void toStringBuilder(StringBuilder strB) {
         strB.append('(');
         r1.toStringBuilder(strB);
         strB.append(")|(");
         r2.toStringBuilder(strB);
         strB.append(')');
+    }
+
+    @Override
+    public void toENFA(ENFA eAutomat) {
+        r1.toENFA(eAutomat);
+        ENFAnode start = new ENFAnode(eAutomat.startNode);
+        ENFAnode end = new ENFAnode();
+        eAutomat.acceptNode.addEmptyEdge(end);
+        r2.toENFA(eAutomat);
+        start.addEmptyEdge(eAutomat.startNode);
+        eAutomat.acceptNode.addEmptyEdge(end);
+        eAutomat.startNode = start;
+        eAutomat.acceptNode = end;
     }
 }
