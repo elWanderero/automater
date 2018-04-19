@@ -6,4 +6,12 @@ public class Union extends RegExp {
         this.r1 = r1;
         this.r2 = r2;
     }
+
+    public void toStringBuilder(StringBuilder strB) {
+        strB.append('(');
+        r1.toStringBuilder(strB);
+        strB.append(")|(");
+        r2.toStringBuilder(strB);
+        strB.append(')');
+    }
 }

@@ -5,4 +5,10 @@ public class ZeroOrOne extends RegExp {
     public ZeroOrOne(RegExp r) {
         this.r = r;
     }
+
+    public void toStringBuilder(StringBuilder strB) {
+        strB.append('(');
+        r.toStringBuilder(strB);
+        strB.append(")?");
+    }
 }
