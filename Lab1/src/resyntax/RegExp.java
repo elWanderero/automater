@@ -1,4 +1,4 @@
-package automata.resyntax;
+package resyntax;
 
 public abstract class RegExp {
 }

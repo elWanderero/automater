@@ -1,4 +1,4 @@
-package automata.resyntax;
+package resyntax;
 
 public class Concatenation extends RegExp {
     public final RegExp r1, r2;

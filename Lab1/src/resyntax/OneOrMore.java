@@ -1,4 +1,4 @@
-package automata.resyntax;
+package resyntax;
 
 public class OneOrMore extends RegExp {
     public final RegExp r;
