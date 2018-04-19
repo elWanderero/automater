@@ -14,7 +14,7 @@ RegExp (the implementation of RegExp is in the directory
 myLab1/automata/resyntax).
 
 The following source code example illustrates how the parser can be used
-(ote that the automata package must be imported):
+(note that the automata package must be imported):
 
 import automata.REParser;
 import automata.resyntax.*;
