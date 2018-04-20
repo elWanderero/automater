@@ -194,7 +194,7 @@ public final Symbol CUP$REParser$do_action(
 		int cleft = ((Symbol)CUP$REParser$stack.elementAt(CUP$REParser$top-0)).left;
 		int cright = ((Symbol)CUP$REParser$stack.elementAt(CUP$REParser$top-0)).right;
 		Character c = (Character)((Symbol) CUP$REParser$stack.elementAt(CUP$REParser$top-0)).value;
-		 RESULT = new Litteral(c); 
+		 RESULT = new Literal(c);
               CUP$REParser$result = new Symbol(4/*Primary*/, ((Symbol)CUP$REParser$stack.elementAt(CUP$REParser$top-0)).left, ((Symbol)CUP$REParser$stack.elementAt(CUP$REParser$top-0)).right, RESULT);
             }
           return CUP$REParser$result;
