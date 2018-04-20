@@ -6,7 +6,7 @@ import resyntax.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        BufferedReader input = new BufferedReader(new FileReader("./Lab1/tests/testcase4.txt"));
+        BufferedReader input = new BufferedReader(new FileReader("./Lab1/tests/testcase2.txt"));
 
         char[] tmp = input.readLine().toCharArray();
         Character[] alphabet = new Character[tmp.length];
@@ -17,6 +17,8 @@ public class Main {
         regexRoot.toENFA(eNFA);
         eNFA.acceptNode.accepting = true;
 
+        System.out.println(eNFA.toString());
+        eNFA.toNFA();
 
     }
 }
