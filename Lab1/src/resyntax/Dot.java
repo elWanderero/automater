@@ -12,8 +12,8 @@ public class Dot extends RegExp {
 
     @Override
     public void toENFA(ENFA eAutomat) {
-        ENFAnode end = new ENFAnode();
-        eAutomat.startNode = new ENFAnode(end, eAutomat.alphabet());
+        ENFAnode end = eAutomat.newNode();
+        eAutomat.startNode = eAutomat.newNode(end, "alphabet");
         eAutomat.acceptNode = end;
     }
 }

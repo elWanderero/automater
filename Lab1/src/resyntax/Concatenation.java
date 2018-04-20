@@ -19,11 +19,11 @@ public class Concatenation extends RegExp {
     @Override
     public void toENFA(ENFA eAutomat) {
         r1.toENFA(eAutomat);
-        ENFAnode start = new ENFAnode(eAutomat.startNode);
+        ENFAnode start = eAutomat.newNode(eAutomat.startNode, "epsilon");
         ENFAnode end = eAutomat.acceptNode;
         r2.toENFA(eAutomat);
         end.addEmptyEdge(eAutomat.startNode);
-        end = new ENFAnode();
+        end = eAutomat.newNode();
         eAutomat.acceptNode.addEmptyEdge(end);
         eAutomat.startNode = start;
         eAutomat.acceptNode= end;

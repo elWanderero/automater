@@ -1,48 +1,46 @@
 package eNFAgraph;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.LinkedHashSet;
 
 public class ENFAnode {
     public boolean accepting = false;
     public ENFAnode edge;
-    public ArrayList<Character> edgeLetters;
+    public final Character[] edgeLetters;
     public boolean hasLetterEdge;
-    public ArrayList<ENFAnode> emptyEdges;
+    public ArrayList<ENFAnode> emptyEdges = new ArrayList<>();
+
+    // For NFA creation
+    public int id;
 
     // Construct node without edges
-    public ENFAnode() {
+    public ENFAnode(int id) {
+        this.id = id;
         hasLetterEdge = false;
-        emptyEdges = new ArrayList<>();
+        edgeLetters = null;
     }
-
     // Construct node with one lettered edge
-    public ENFAnode(ENFAnode letteredEdge, Character letter) {
+    public ENFAnode(int id, ENFAnode edge, Character[] edgeLetters) {
+        this.id = id;
         hasLetterEdge = true;
-        edge = letteredEdge;
-        edgeLetters = new ArrayList<>(letter);
-    }
-
-    // Construct node with one edge with several letters
-    public ENFAnode(ENFAnode multiLetteredEdge, ArrayList<Character> edgeLetters) {
-        hasLetterEdge = true;
-        edge = multiLetteredEdge;
+        this.edge = edge;
         this.edgeLetters = edgeLetters;
     }
-
-    // Construct node with one empty edge
-    public ENFAnode(ENFAnode emptyEdge) {
+    // Construct node with one epsilon-edge
+    public ENFAnode(int id, ENFAnode epsilonEdge) {
+        this.id = id;
         hasLetterEdge = false;
-        emptyEdges.add(emptyEdge);
-    }
-
-    // Construct node with two empty edges
-    public ENFAnode(ENFAnode emptyEdge1, ENFAnode emptyEdge2) {
-        hasLetterEdge = false;
-        emptyEdges.add(emptyEdge1);
-        emptyEdges.add(emptyEdge2);
+        emptyEdges.add(epsilonEdge);
+        edgeLetters = null;
     }
 
     public void addEmptyEdge(ENFAnode emptyEdge) {
         emptyEdges.add(emptyEdge);
     }
+
+    public void getReachables(Dictionary<Character, ArrayList<ENFAnode>> letteredEdgeDict) {
+
+    }
+
 }

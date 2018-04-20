@@ -1,7 +1,6 @@
 package resyntax;
 
 import eNFAgraph.ENFA;
-import java.util.ArrayList;
 
 public abstract class RegExp {
     @Override

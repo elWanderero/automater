@@ -16,8 +16,8 @@ public class Literal extends RegExp {
 
     @Override
     public void toENFA(ENFA eAutomat) {
-        ENFAnode end = new ENFAnode();
-        eAutomat.startNode = new ENFAnode(end, c);
+        ENFAnode end = eAutomat.newNode();
+        eAutomat.startNode = eAutomat.newNode(end, String.valueOf(c));
         eAutomat.acceptNode = end;
     }
 }

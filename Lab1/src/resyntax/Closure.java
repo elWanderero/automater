@@ -19,8 +19,9 @@ public class Closure extends RegExp {
     @Override
     public void toENFA(ENFA eAutomat) {
         r.toENFA(eAutomat);
-        ENFAnode end = new ENFAnode();
-        ENFAnode start = new ENFAnode(eAutomat.startNode, end);
+        ENFAnode end = eAutomat.newNode();
+        ENFAnode start = eAutomat.newNode(end, "epsilon");
+        start.addEmptyEdge(eAutomat.startNode);
         eAutomat.acceptNode.addEmptyEdge(eAutomat.startNode);
         eAutomat.acceptNode.addEmptyEdge(end);
         eAutomat.startNode = start;

@@ -22,8 +22,8 @@ public class Union extends RegExp {
     @Override
     public void toENFA(ENFA eAutomat) {
         r1.toENFA(eAutomat);
-        ENFAnode start = new ENFAnode(eAutomat.startNode);
-        ENFAnode end = new ENFAnode();
+        ENFAnode start = eAutomat.newNode(eAutomat.startNode, "epsilon");
+        ENFAnode end = eAutomat.newNode();
         eAutomat.acceptNode.addEmptyEdge(end);
         r2.toENFA(eAutomat);
         start.addEmptyEdge(eAutomat.startNode);
