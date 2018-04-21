@@ -33,7 +33,7 @@ public class ENFAnode {
         edgeLetters = null;
     }
 
-    protected void toStringBuilder(boolean[] alreadyQueuedNodes,
+    void toStringBuilder(boolean[] alreadyQueuedNodes,
                            LinkedList<ENFAnode> queue,
                            StringBuilder str) {
         str.append(String.format("%2d", id));
@@ -66,7 +66,7 @@ public class ENFAnode {
         emptyEdges.add(emptyEdge);
     }
 
-    protected void getReachables(Dictionary<Character, Set<ENFAnode>> reachables,
+    boolean getReachables(Dictionary<Character, Set<ENFAnode>> reachables,
                                  boolean[] alreadyQueuedNodes,
                                  LinkedList<ENFAnode> queue) {
         if (hasLetterEdge) for (Character c : edgeLetters) reachables.get(c).add(edge);
@@ -75,9 +75,10 @@ public class ENFAnode {
                 queue.add(epsEdge);
                 alreadyQueuedNodes[epsEdge.id] = true;
             }
-        if (!queue.isEmpty()) {
+        if (queue.isEmpty()) return accepting;
+        else {
             ENFAnode next = queue.remove();
-            next.getReachables(reachables, alreadyQueuedNodes, queue);
+            return accepting || next.getReachables(reachables, alreadyQueuedNodes, queue);
         }
     }
 

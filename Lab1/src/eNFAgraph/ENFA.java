@@ -40,8 +40,16 @@ public class ENFA {
         return str.toString();
     }
 
+    /* The epsilon-ordering-classes (which are the NFA nodes) get represented by their root, i.e. the node that was
+     * first discovered when traversing the e-NFA. However, if the root is actually part of a cycle, that representation
+     * is not well-defined. Potentially then, we could end up with multiple NFA nodes that are actually the same class,
+     * only because we represented them with different e-NFA nodes. In the case of an e-NFA generated from a regexp
+     * however, this will never happen. We only evaluate the class of a node if it is the start node or is pointed at by
+     * a lettered edge. And lettered edges can never point at e-cycles, which can be seen by inspecting the regex->eNFA
+     * schema. Thus at most one discovered node (the start) will ever be part of a cycle.
+     */
     public NFA toNFA() {
-        Dictionary<Character, Set<Integer>>[] nfa = new Dictionary[size];
+        Dictionary<Character, Set<Integer>>[] nfa = new Hashtable[size];
         boolean[] acceptingStates = new boolean[size];
 
         LinkedList<ENFAnode> queue = new LinkedList<>();
@@ -50,7 +58,9 @@ public class ENFA {
         alreadyQueuedNodes[startNode.id] = true;
 
         while (!queue.isEmpty()) {
+            // next eNFA node for which to find epsilon-reachable subgraph.
             ENFAnode next = queue.remove();
+            boolean accepting = false;
 
             // Fill edgeDict with edges reached from next.
             Hashtable<Character, Set<ENFAnode>> edgeDict = new Hashtable<>(alphabet.length, 1);
@@ -61,7 +71,7 @@ public class ENFA {
 
             Dictionary<Character, Set<Integer>> nfaNode = new Hashtable<>(alphabet.length, 1);
 
-            // Fill queue with new reached edges, and put their ids into the nfa.NFA.
+            // Fill queue with new reached edges, and put their ids into the nfa.NFA
             for (Character c : alphabet) {
                 Set<ENFAnode> reachedNodes = edgeDict.get(c);
                 Set<Integer> reachedNodeIds = new HashSet<>(reachedNodes.size());
@@ -76,7 +86,7 @@ public class ENFA {
             }
 
             nfa[next.id] = nfaNode;
-            if ( next.accepting ) acceptingStates[next.id] = true;
+            acceptingStates[next.id] = next.accepting;
         }
 
         return new NFA(acceptingStates, startNode.id, nfa, alphabet);
