@@ -9,29 +9,32 @@ public class NFA {
     public Dictionary<Character, SortedSet<Integer>>[] transitionFcn;
     public Character[] alphabet;
 
-    public NFA(boolean[] acceptingStates,
+    public NFA(Character[] alphabet,
+               Dictionary<Character, SortedSet<Integer>>[] fcnTable,
                Integer start,
-               Dictionary<Character, SortedSet<Integer>>[] transitionFcn,
-               Character[] alphabet) {
+               boolean[] acceptingStates) {
         this.acceptingStates = acceptingStates;
         this.start = start;
-        this.transitionFcn = transitionFcn;
+        this.transitionFcn = fcnTable;
         this.alphabet = alphabet;
     }
 
-    public void toPrint() {
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder();
         for (int i=0 ; i<transitionFcn.length ; i++) {
             if ( !(transitionFcn[i]==null) ) {
-                System.out.printf("%2d ||", i);
+                str.append(String.format("%2d ||", i));
                 for (Character c : alphabet) {
                     if (transitionFcn[i].get(c).size() > 0) {
-                        System.out.printf(" %c", c);
-                        for (Integer id : transitionFcn[i].get(c)) System.out.printf("-%2d", id);
-                        System.out.print(" |");
+                        str.append(String.format(" %c", c));
+                        for (Integer id : transitionFcn[i].get(c)) str.append(String.format("-%2d", id));
+                        str.append(String.format(" |"));
                     }
                 }
-                System.out.println();
+                str.append(System.lineSeparator());
             }
         }
+        return str.toString();
     }
 }
