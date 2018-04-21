@@ -60,7 +60,7 @@ public class ENFA {
         alreadyQueuedNodes[startNode.id] = true;
 
         while (!queue.isEmpty()) {
-            // next eNFA node for which to find epsilon-reachable subgraph.
+            // next eNFA node for which to find epsilon-reachable subgraph class.
             ENFAnode next = queue.remove();
 
             // Fill edgeDict with edges reached from next.
@@ -68,7 +68,7 @@ public class ENFA {
             for (Character c : alphabet) edgeDict.put(c, new LinkedHashSet<>());
             boolean[] subAlreadyQueuedNodes = new boolean[size];  // Default values = false
             subAlreadyQueuedNodes[next.id] = true;
-            next.getReachables(edgeDict, subAlreadyQueuedNodes, new LinkedList<>());
+            boolean stateAccepts = next.getReachables(edgeDict, subAlreadyQueuedNodes, new LinkedList<>());
 
             Dictionary<Character, SortedSet<Integer>> nfaNode = new Hashtable<>(alphabet.length, 1);
 
@@ -87,7 +87,7 @@ public class ENFA {
             }
 
             nfa[next.id] = nfaNode;
-            acceptingStates[next.id] = next.accepting;
+            acceptingStates[next.id] = stateAccepts;
         }
 
         return new NFA(alphabet, nfa, startNode.id, acceptingStates);
