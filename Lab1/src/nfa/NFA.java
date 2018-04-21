@@ -1,7 +1,13 @@
+/* Implemented as a function table, a variable denoting the start state, and a list of the accepting states.
+ *
+ */
+
 package nfa;
 
 import java.util.Dictionary;
 import java.util.SortedSet;
+
+
 
 public class NFA {
     public boolean[] acceptingStates;
@@ -24,12 +30,14 @@ public class NFA {
         StringBuilder str = new StringBuilder();
         for (int i=0 ; i<transitionFcn.length ; i++) {
             if ( !(transitionFcn[i]==null) ) {
-                str.append(String.format("%2d ||", i));
+                String annotation = acceptingStates[i] ? "*" : "";
+                if ( i==start ) annotation += "•";
+                str.append(String.format("%2d%-2s||", i, annotation));
                 for (Character c : alphabet) {
                     if (transitionFcn[i].get(c).size() > 0) {
                         str.append(String.format(" %c", c));
                         for (Integer id : transitionFcn[i].get(c)) str.append(String.format("-%2d", id));
-                        str.append(String.format(" |"));
+                        str.append(" |");
                     }
                 }
                 str.append(System.lineSeparator());
