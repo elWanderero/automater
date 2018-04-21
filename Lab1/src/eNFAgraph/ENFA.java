@@ -49,7 +49,7 @@ public class ENFA {
      * schema. Thus at most one discovered node (the start) will ever be part of a cycle.
      */
     public NFA toNFA() {
-        Dictionary<Character, Set<Integer>>[] nfa = new Hashtable[size];
+        Dictionary<Character, SortedSet<Integer>>[] nfa = new Hashtable[size];
         boolean[] acceptingStates = new boolean[size];
 
         LinkedList<ENFAnode> queue = new LinkedList<>();
@@ -60,7 +60,6 @@ public class ENFA {
         while (!queue.isEmpty()) {
             // next eNFA node for which to find epsilon-reachable subgraph.
             ENFAnode next = queue.remove();
-            boolean accepting = false;
 
             // Fill edgeDict with edges reached from next.
             Hashtable<Character, Set<ENFAnode>> edgeDict = new Hashtable<>(alphabet.length, 1);
@@ -69,12 +68,12 @@ public class ENFA {
             subAlreadyQueuedNodes[next.id] = true;
             next.getReachables(edgeDict, subAlreadyQueuedNodes, new LinkedList<>());
 
-            Dictionary<Character, Set<Integer>> nfaNode = new Hashtable<>(alphabet.length, 1);
+            Dictionary<Character, SortedSet<Integer>> nfaNode = new Hashtable<>(alphabet.length, 1);
 
             // Fill queue with new reached edges, and put their ids into the nfa.NFA
             for (Character c : alphabet) {
                 Set<ENFAnode> reachedNodes = edgeDict.get(c);
-                Set<Integer> reachedNodeIds = new HashSet<>(reachedNodes.size());
+                SortedSet<Integer> reachedNodeIds = new TreeSet<>();
                 for (ENFAnode reachedNode : reachedNodes) {
                     if (!alreadyQueuedNodes[reachedNode.id]) {
                         queue.add(reachedNode);
