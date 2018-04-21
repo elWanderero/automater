@@ -48,8 +48,9 @@ public class ENFA {
      * a lettered edge. And lettered edges can never point at e-cycles, which can be seen by inspecting the regex->eNFA
      * schema. Thus at most one discovered node (the start) will ever be part of a cycle.
      */
-    @SuppressWarnings("unchecked")
+
     public NFA toNFA() {
+        @SuppressWarnings("unchecked")
         Dictionary<Character, SortedSet<Integer>>[] nfa = new Hashtable[size];
         boolean[] acceptingStates = new boolean[size];
 
