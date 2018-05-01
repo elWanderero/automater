@@ -4,25 +4,27 @@
 
 package nfa;
 
-import java.util.Dictionary;
-import java.util.SortedSet;
+import DFAgraph.DFA;
+import DFAgraph.DFAnode;
 
-
+import java.util.*;
 
 public class NFA {
-    public boolean[] acceptingStates;
-    public Integer start;
-    public Dictionary<Character, SortedSet<Integer>>[] transitionFcn;
-    public Character[] alphabet;
+    public final boolean[] acceptingStates;
+    public final Integer start;
+    public final Map<Character, EquivalenceClass>[] transitionFcn;
+    public final Character[] alphabet;
+    public final int sizeBound;
 
     public NFA(Character[] alphabet,
-               Dictionary<Character, SortedSet<Integer>>[] fcnTable,
+               Map<Character, EquivalenceClass>[] fcnTable,
                Integer start,
                boolean[] acceptingStates) {
         this.acceptingStates = acceptingStates;
         this.start = start;
         this.transitionFcn = fcnTable;
         this.alphabet = alphabet;
+        sizeBound = fcnTable.length;
     }
 
     @Override
@@ -44,5 +46,50 @@ public class NFA {
             }
         }
         return str.toString();
+    }
+
+    public DFA toDFA() {
+        DFA dfa = new DFA(alphabet);
+        DFAnode startNode = dfa.makeNode();
+        dfa.start = startNode;
+        
+        EquivalenceClass startClass = new EquivalenceClass();
+        startClass.add(start);
+
+        Queue<EquivalenceClass> queue = new LinkedList<>();
+        queue.add( startClass );
+
+        TreeMap<EquivalenceClass, DFAnode> alreadyQueued = new TreeMap<>();
+        alreadyQueued.put(new EquivalenceClass(), dfa.deathNode);
+        alreadyQueued.put(startClass, startNode);
+
+        while (!queue.isEmpty()) {
+            EquivalenceClass equivNode = queue.remove();
+            DFAnode dfaNode = alreadyQueued.get(equivNode);
+            for (Integer id : equivNode) {
+                if (acceptingStates[id]) {
+                    dfaNode.accepting = true;
+                    break;
+                }
+            }
+
+            for (Character c : alphabet) {
+                EquivalenceClass equivEdge = new EquivalenceClass();
+                DFAnode dfaEdge;
+                for (Integer nfaNode : equivNode) {
+                    EquivalenceClass partialEdge = transitionFcn[nfaNode].get(c);
+                    equivEdge.addAll(partialEdge);
+                }
+
+                if ( alreadyQueued.containsKey(equivEdge) ) dfaEdge = alreadyQueued.get(equivEdge);
+                else {
+                    queue.add(equivEdge);
+                    dfaEdge = dfa.makeNode();
+                    alreadyQueued.put(equivEdge, dfaEdge);
+                }
+                dfaNode.edges.put(c, dfaEdge);
+            }
+        }
+        return dfa;
     }
 }
