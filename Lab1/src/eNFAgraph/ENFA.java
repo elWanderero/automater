@@ -2,6 +2,7 @@ package eNFAgraph;
 
 import java.util.*;
 import nfa.NFA;
+import nfa.EquivalenceClass;
 
 public class ENFA {
     public ENFAnode startNode;
@@ -51,10 +52,10 @@ public class ENFA {
 
     public NFA toNFA() {
         @SuppressWarnings("unchecked")
-        Dictionary<Character, SortedSet<Integer>>[] nfa = new Hashtable[size];
+        Map<Character, EquivalenceClass>[] nfa = new HashMap[size];
         boolean[] acceptingStates = new boolean[size];
 
-        LinkedList<ENFAnode> queue = new LinkedList<>();
+        Queue<ENFAnode> queue = new LinkedList<>();
         boolean[] alreadyQueuedNodes = new boolean[size];
         queue.add(startNode);
         alreadyQueuedNodes[startNode.id] = true;
@@ -64,18 +65,18 @@ public class ENFA {
             ENFAnode next = queue.remove();
 
             // Fill edgeDict with edges reached from next.
-            Hashtable<Character, Set<ENFAnode>> edgeDict = new Hashtable<>(alphabet.length, 1);
+            Map<Character, Set<ENFAnode>> edgeDict = new HashMap<>(alphabet.length, 1);
             for (Character c : alphabet) edgeDict.put(c, new LinkedHashSet<>());
             boolean[] subAlreadyQueuedNodes = new boolean[size];  // Default values = false
             subAlreadyQueuedNodes[next.id] = true;
-            boolean stateAccepts = next.getReachables(edgeDict, subAlreadyQueuedNodes, new LinkedList<>());
+            boolean classAccepts = next.getReachables(edgeDict, subAlreadyQueuedNodes, new LinkedList<>());
 
-            Dictionary<Character, SortedSet<Integer>> nfaNode = new Hashtable<>(alphabet.length, 1);
+            Map<Character, EquivalenceClass> nfaNode = new HashMap<>(alphabet.length, 1);
 
             // Fill queue with new reached edges, and put their ids into the nfa.NFA
             for (Character c : alphabet) {
                 Set<ENFAnode> reachedNodes = edgeDict.get(c);
-                SortedSet<Integer> reachedNodeIds = new TreeSet<>();
+                EquivalenceClass reachedNodeIds = new EquivalenceClass();
                 for (ENFAnode reachedNode : reachedNodes) {
                     if (!alreadyQueuedNodes[reachedNode.id]) {
                         queue.add(reachedNode);
@@ -85,9 +86,8 @@ public class ENFA {
                 }
                 nfaNode.put(c, reachedNodeIds);
             }
-
+            acceptingStates[next.id] = classAccepts;
             nfa[next.id] = nfaNode;
-            acceptingStates[next.id] = stateAccepts;
         }
 
         return new NFA(alphabet, nfa, startNode.id, acceptingStates);
