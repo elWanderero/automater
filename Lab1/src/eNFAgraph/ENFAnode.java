@@ -37,7 +37,7 @@ public class ENFAnode {
                            LinkedList<ENFAnode> queue,
                            StringBuilder str) {
         str.append(String.format("%2d", id));
-        if (accepting) str.append("*||");
+        if (accepting) str.append("*|| ");
         else str.append(" || ");
         if ( !emptyEdges.isEmpty() ) str.append("ε");
         for (ENFAnode epsEdge : emptyEdges) {
@@ -51,7 +51,6 @@ public class ENFAnode {
         if ( hasLetterEdge ) {
             if (edgeLetters.length == 1) str.append(edgeLetters[0]);
             else str.append("all");
-//            str.append(edgeLetters[0]);
             str.append("-");
             str.append(edge.id);
             if (!alreadyQueuedNodes[edge.id]) {
@@ -66,20 +65,18 @@ public class ENFAnode {
         emptyEdges.add(emptyEdge);
     }
 
-    boolean getReachables(Dictionary<Character, Set<ENFAnode>> reachables,
-                                 boolean[] alreadyQueuedNodes,
-                                 LinkedList<ENFAnode> queue) {
+    boolean getReachables(Map<Character, Set<ENFAnode>> reachables,
+                       boolean[] alreadyQueuedNodes,
+                       Queue<ENFAnode> queue) {
         if (hasLetterEdge) for (Character c : edgeLetters) reachables.get(c).add(edge);
-        for (ENFAnode epsEdge : emptyEdges)
+        for (ENFAnode epsEdge : emptyEdges) {
             if (!alreadyQueuedNodes[epsEdge.id]) {
                 queue.add(epsEdge);
                 alreadyQueuedNodes[epsEdge.id] = true;
             }
-        if (queue.isEmpty()) return accepting;
-        else {
-            ENFAnode next = queue.remove();
-            return accepting || next.getReachables(reachables, alreadyQueuedNodes, queue);
         }
+        if ( queue.isEmpty() ) return accepting;
+        else return  queue.remove().getReachables(reachables, alreadyQueuedNodes, queue) || accepting;
     }
 
 }
