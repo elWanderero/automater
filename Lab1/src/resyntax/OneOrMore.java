@@ -1,6 +1,7 @@
 package resyntax;
 
 import eNFAgraph.ENFA;
+import eNFAgraph.ENFAnode;
 
 public class OneOrMore extends RegExp {
     public final RegExp r;
@@ -19,5 +20,6 @@ public class OneOrMore extends RegExp {
     public void toENFA(ENFA eAutomat) {
         r.toENFA(eAutomat);
         eAutomat.acceptNode.addEmptyEdge(eAutomat.startNode);
+        eAutomat.startNode = eAutomat.newNode(eAutomat.startNode, "epsilon");
     }
 }
