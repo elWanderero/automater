@@ -6,10 +6,12 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Queue;
+import java.util.Collection;
 
 public class DFA {
     public DFAnode start;
     public DFAnode deathNode;
+    private Collection<DFAnode> nodesList;
     private final Character[] alphabet;
     private int size;
 
@@ -19,9 +21,9 @@ public class DFA {
         deathNode = new DFAnode(alphabet, newId());
     }
 
-    public DFAnode makeNode() {
-        return new DFAnode(alphabet, newId());
-    }
+    public DFAnode makeNode() { return new DFAnode(alphabet, newId()); }
+
+    public void setNodesList(Collection<DFAnode> nodesList) { this.nodesList = nodesList; }
 
     public void minimise() {
         Map<DFAnode, Integer> classTable = new HashMap<>(size);
