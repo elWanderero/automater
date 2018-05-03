@@ -49,9 +49,9 @@ public class NFA {
     }
 
     public DFA toDFA() {
-        DFA dfa = new DFA(alphabet);
+        DFA dfa = new DFA(alphabet, true);
         DFAnode startNode = dfa.makeNode();
-        dfa.start = startNode;
+        dfa.setStart(startNode);
         
         EquivalenceClass startClass = new EquivalenceClass();
         startClass.add(start);
@@ -60,7 +60,7 @@ public class NFA {
         queue.add( startClass );
 
         TreeMap<EquivalenceClass, DFAnode> alreadyQueued = new TreeMap<>();
-        alreadyQueued.put(new EquivalenceClass(), dfa.deathNode);
+        alreadyQueued.put(new EquivalenceClass(), dfa.getDeathNode());  // I'm very clever.
         alreadyQueued.put(startClass, startNode);
 
         while (!queue.isEmpty()) {
