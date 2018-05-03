@@ -96,7 +96,6 @@ public class DFA {
             }
         }
         // Wire the edges
-        System.out.println("rootList.size=" + String.valueOf(rootList.size()));
         for ( DFAnode root : rootList ) {
             Map<Character, DFAnode> newEdges;
             newEdges = new HashMap<>(root.edges);
