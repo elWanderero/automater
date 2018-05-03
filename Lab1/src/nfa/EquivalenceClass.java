@@ -19,16 +19,4 @@ public class EquivalenceClass extends TreeSet<Integer> implements Comparable<Tre
         else return rhsIter.hasNext() ? -1 : 1;
     }
 
-    public boolean equals(TreeSet<Integer> rhs) {
-        Iterator<Integer> rhsIter = rhs.iterator();
-        for (Integer lhsNum : this) {
-            if ( !rhsIter.hasNext() ) return false;
-            Integer rhsNum = rhsIter.next();
-            if (!lhsNum.equals(rhsNum)) return false;
-        }
-        return !rhsIter.hasNext();
-    }
-
-
-
 }
