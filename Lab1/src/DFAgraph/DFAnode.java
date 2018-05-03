@@ -8,16 +8,25 @@ public class DFAnode {
     public Map<Character, DFAnode> edges;
     public final int id;
 
-    public  DFAnode(Character[] alphabet, int id) {
+    DFAnode(Character[] alphabet, int id) {
         this.edges = new HashMap<>(alphabet.length);
         this.id = id;
+    }
+
+    void addToStringBuilderExcludeNode(StringBuilder str, int idOfNodeToExclude) {
+        if ( id == idOfNodeToExclude ) return;
+        str.append(String.format("%2d", id));
+        if (accepting) str.append("*||");
+        else str.append(" ||");
+        edges.forEach((c, node) -> str.append( node.id == idOfNodeToExclude ? "" : String.format(" %c →%2d |", c, node.id)));
+        str.append(System.lineSeparator());
     }
 
     void addToStringBuilder(StringBuilder str) {
         str.append(String.format("%2d", id));
         if (accepting) str.append("*||");
         else str.append(" ||");
-        edges.forEach((c, node) -> str.append( node.id == 0 ? "" : String.format(" %c →%2d |", c, node.id)));
+        edges.forEach((c, node) -> str.append(String.format(" %c →%2d |", c, node.id)));
         str.append(System.lineSeparator());
     }
 
