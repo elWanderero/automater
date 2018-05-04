@@ -8,9 +8,14 @@ public class DFAnode {
     public Map<Character, DFAnode> edges;
     public final int id;
 
-    boolean eval (String str, int index) {
+    boolean strongEval(String str, int index) {
         if (index >= str.length()) return accepting;
-        else return edges.get(str.charAt(index)).eval(str, ++index);
+        else return edges.get(str.charAt(index)).strongEval(str, ++index);
+    }
+
+    boolean weakEval (String str, int index) {
+        if (accepting || index >= str.length()) return accepting;
+        else return edges.get(str.charAt(index)).weakEval(str, ++index);
     }
 
     DFAnode(Character[] alphabet, int id) {

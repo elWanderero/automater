@@ -48,7 +48,12 @@ public class DFA {
         this.start = start;
     }
 
-    public boolean eval(String str) { return start.eval(str, 0); }
+    public boolean strongEval(String str) { return start.strongEval(str, 0); }
+
+    public boolean weakEval(String str) {
+        for ( int i=0; i<str.length(); ++i) if (start.weakEval(str, i)) return true;
+        return false;
+    }
 
     private boolean newEdgeDifference(DFAnode a, DFAnode b, boolean[][] diffTable) {
         if ( diffTable[a.id][b.id] ) return false;

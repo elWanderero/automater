@@ -9,7 +9,7 @@ public class DeathNode extends DFAnode {
     }
 
     @Override
-    boolean eval(String str, int index) {
+    boolean strongEval(String str, int index) {
         return false;
     }
 }
