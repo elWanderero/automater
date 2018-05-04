@@ -38,7 +38,7 @@ public class NFA {
                 for (Character c : alphabet) {
                     if (transitionFcn[i].get(c).size() > 0) {
                         str.append(String.format(" %c", c));
-                        for (Integer id : transitionFcn[i].get(c)) str.append(String.format("-%2d", id));
+                        for (Integer id : transitionFcn[i].get(c)) str.append(String.format("→%2d", id));
                         str.append(" |");
                     }
                 }
