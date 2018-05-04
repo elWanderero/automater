@@ -8,6 +8,11 @@ public class DFAnode {
     public Map<Character, DFAnode> edges;
     public final int id;
 
+    boolean eval (String str, int index) {
+        if (index >= str.length()) return accepting;
+        else return edges.get(str.charAt(index)).eval(str, ++index);
+    }
+
     DFAnode(Character[] alphabet, int id) {
         this.edges = new HashMap<>(alphabet.length);
         this.id = id;

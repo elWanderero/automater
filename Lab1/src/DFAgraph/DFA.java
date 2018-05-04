@@ -19,7 +19,8 @@ public class DFA {
     }
 
     private void initiateDeathNode(Character[] alphabet, List<DFAnode> nodesList) {
-        this.deathNode = makeNode();
+        this.deathNode = new DeathNode(alphabet, newId());
+        nodesList.add(deathNode);
         Map<Character, DFAnode> selfEdges = new HashMap<>(alphabet.length, 1);
         for ( Character c: alphabet) selfEdges.put(c, deathNode);
         deathNode.edges = selfEdges;
@@ -46,6 +47,8 @@ public class DFA {
     public void setStart(DFAnode start) {
         this.start = start;
     }
+
+    public boolean eval(String str) { return start.eval(str, 0); }
 
     private boolean newEdgeDifference(DFAnode a, DFAnode b, boolean[][] diffTable) {
         if ( diffTable[a.id][b.id] ) return false;
