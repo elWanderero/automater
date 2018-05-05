@@ -1,7 +1,5 @@
 package DFAgraph;
 
-import java.util.Queue;
-
 public class DeathNode extends DFAnode {
 
     DeathNode(Character[] alphabet, int id) {
@@ -11,5 +9,10 @@ public class DeathNode extends DFAnode {
     @Override
     boolean strongEval(String str, int index) {
         return false;
+    }
+
+    @Override
+    void addToGVstringBuilder(StringBuilder str) {
+        str.append(String.format("%d [ style=filled, fillcolor = black ];%n", id));
     }
 }

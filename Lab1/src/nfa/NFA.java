@@ -6,6 +6,8 @@ package nfa;
 
 import DFAgraph.DFA;
 import DFAgraph.DFAnode;
+import eNFAgraph.ENFA;
+import eNFAgraph.ENFAnode;
 
 import java.util.*;
 
@@ -45,6 +47,27 @@ public class NFA {
                 str.append(System.lineSeparator());
             }
         }
+        return str.toString();
+    }
+
+    public String toGVstring() {
+        List<Integer> acceptingNodes = new LinkedList<>();
+        for (int i=0 ; i<acceptingStates.length ; ++i) {
+            if (acceptingStates[i]) acceptingNodes.add(i);
+        }
+        StringBuilder str = ENFA.gvPrefix(start, acceptingNodes);
+        for (int i=0 ; i<transitionFcn.length ; i++) {
+            String prefix = String.valueOf(i) + " -> ";
+            if ( !(transitionFcn[i]==null) ) for (Character c : alphabet) {
+                String suffix = " [ label = \"" + c.toString() + "\" ];" + System.lineSeparator();
+                for (Integer edgeId : transitionFcn[i].get(c)) {
+                    str.append(prefix);
+                    str.append(edgeId);
+                    str.append(suffix);
+                }
+            }
+        }
+        str.append("}");
         return str.toString();
     }
 

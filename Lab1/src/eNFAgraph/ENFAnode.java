@@ -61,6 +61,25 @@ public class ENFAnode {
         str.append("\n");
     }
 
+    void toGVstring(StringBuilder str) {
+        String prefix = String.valueOf(id) + " -> ";
+        if (hasLetterEdge) {
+            str.append(prefix);
+            str.append(edge.id);
+            str.append(" [ label = \"");
+            str.append(edgeLetters.length>1 ? "Σ" : edgeLetters[0]);
+            str.append("\" ];");
+            str.append(System.lineSeparator());
+        } else {
+            String suffix = " [ label = \"ε\" ];" + System.lineSeparator();
+            for (ENFAnode node : emptyEdges) {
+                str.append(prefix);
+                str.append(node.id);
+                str.append(suffix);
+            }
+        }
+    }
+
     public void addEmptyEdge(ENFAnode emptyEdge) {
         emptyEdges.add(emptyEdge);
     }

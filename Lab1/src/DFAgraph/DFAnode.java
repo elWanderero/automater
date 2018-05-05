@@ -40,4 +40,12 @@ public class DFAnode {
         str.append(System.lineSeparator());
     }
 
+    void addToGVstringBuilder(StringBuilder str) {
+        if (accepting) str.append(String.format("%d [shape = doublecircle];%n", id));
+        edges.forEach((c, node) -> {
+            String escapedChar = c == '\\' || c == '\"' ? "\\" + c.toString() : c.toString();
+            str.append(String.format("%d -> %d [ label = \"%s\" ];%n", id, node.id, escapedChar));
+        });
+    }
+
 }

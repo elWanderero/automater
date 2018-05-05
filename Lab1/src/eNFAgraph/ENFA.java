@@ -1,6 +1,7 @@
 package eNFAgraph;
 
 import java.util.*;
+
 import nfa.NFA;
 import nfa.EquivalenceClass;
 
@@ -15,19 +16,21 @@ public class ENFA {
         size = 0;
     }
 
+    public void initiate() { acceptNode.accepting = true; }
+
     public ENFAnode newNode(ENFAnode edge, String type) {
         if (type.length() == 1) {  // one-letter edge
-            return new ENFAnode(getId(), edge, new Character[] {type.charAt(0)});
+            return new ENFAnode(newId(), edge, new Character[] {type.charAt(0)});
         } else if (type.equals("alphabet")) {
-            return new ENFAnode(getId(), edge, alphabet);
+            return new ENFAnode(newId(), edge, alphabet);
         } else if (type.equals("epsilon")) {
-           return new ENFAnode(getId(), edge);
+           return new ENFAnode(newId(), edge);
         } else throw new IllegalArgumentException("Allowed types: \"alphabet\", \"epsilon\" and any one-char string.");
     }
     public ENFAnode newNode() {
-        return new ENFAnode(getId());
+        return new ENFAnode(newId());
     }
-    private int getId() { return size++; }
+    private int newId() { return size++; }
 
     public String toString() {
         StringBuilder str = new StringBuilder();
@@ -41,6 +44,58 @@ public class ENFA {
         return str.toString();
     }
 
+    public static StringBuilder gvPrefix(int startNodeId, Collection<Integer> acceptNodeIds ) {
+        String line = System.lineSeparator();
+        StringBuilder str = new StringBuilder("digraph finite_state_machine {");
+        str.append(line);
+        str.append("rankdir=LR; size=\"19,11\"");
+        str.append(line);
+        str.append("node [shape = cds]; ");
+        str.append(startNodeId);
+        str.append(";");
+        str.append(line);
+        if (!acceptNodeIds.isEmpty()) str.append("node [shape = doublecircle]; ");
+        for (Integer id : acceptNodeIds) {
+            str.append(id);
+            str.append(";");
+        }
+        if (!acceptNodeIds.isEmpty()) str.append(line);
+        str.append("node [shape = circle];");
+        str.append(line);
+        return str;
+    }
+
+    public String toGVstring() {
+        Queue<ENFAnode> queue = new LinkedList<>();
+        boolean[] alreadyQueued = new boolean[size];
+        queue.add(startNode);
+        alreadyQueued[startNode.id] = true;
+
+        List<Integer> acceptNodeIds = new ArrayList<>(1);
+        acceptNodeIds.add(acceptNode.id);
+        StringBuilder str = gvPrefix(startNode.id, acceptNodeIds);
+
+        while ( !queue.isEmpty() ) {
+            ENFAnode node = queue.remove();
+            node.toGVstring(str);
+            if (node.hasLetterEdge) {
+                if (!alreadyQueued[node.edge.id]) {
+                    queue.add(node.edge);
+                    alreadyQueued[node.edge.id] = true;
+                }
+            } else {
+                for (ENFAnode edge : node.emptyEdges) {
+                    if (!alreadyQueued[edge.id]) {
+                        queue.add(edge);
+                        alreadyQueued[edge.id] = true;
+                    }
+                }
+            }
+        }
+        str.append("}");
+        return str.toString();
+    }
+
     /* The epsilon-ordering-classes (which are the NFA nodes) get represented by their root, i.e. the node that was
      * first discovered when traversing the e-NFA. However, if the root is actually part of a cycle, that representation
      * is not well-defined. Potentially then, we could end up with multiple NFA nodes that are actually the same class,
@@ -49,7 +104,6 @@ public class ENFA {
      * a lettered edge. And lettered edges can never point at e-cycles, which can be seen by inspecting the regex->eNFA
      * schema. Thus at most one discovered node (the start) will ever be part of a cycle.
      */
-
     public NFA toNFA() {
         @SuppressWarnings("unchecked")
         Map<Character, EquivalenceClass>[] nfa = new HashMap[size];

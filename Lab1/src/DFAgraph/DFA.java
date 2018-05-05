@@ -1,5 +1,7 @@
 package DFAgraph;
 
+import eNFAgraph.ENFA;
+
 import java.util.*;
 
 public class DFA {
@@ -8,6 +10,7 @@ public class DFA {
     private List<DFAnode> nodesList;
     private final Character[] alphabet;
     private int size;
+    public boolean strongEvaluation;
 
     public DFA(Character[] alphabet) { this(alphabet,false); }
 
@@ -16,6 +19,7 @@ public class DFA {
         this.nodesList = new LinkedList<>();
         size = 0;
         if ( withDeath ) initiateDeathNode(alphabet, nodesList);
+        strongEvaluation = true;
     }
 
     private void initiateDeathNode(Character[] alphabet, List<DFAnode> nodesList) {
@@ -38,22 +42,15 @@ public class DFA {
 
     public void setDeathNode(DFAnode deathNode) { this.deathNode = deathNode; }
 
-    public DFAnode getStart() {
-        return start;
-    }
-
-    public int getSize() { return size; }
-
     public void setStart(DFAnode start) {
         this.start = start;
     }
 
-    public boolean strongEval(String str) { return start.strongEval(str, 0); }
+    public boolean eval(String str) { return strongEvaluation ? strongEval(str) : weakEval(str); }
 
-    public boolean weakEval(String str) {
-        for ( int i=0; i<str.length(); ++i) if (start.weakEval(str, i)) return true;
-        return false;
-    }
+    private boolean strongEval(String str) { return start.strongEval(str, 0); }
+
+    private boolean weakEval(String str) { return start.weakEval(str, 0); }
 
     private boolean newEdgeDifference(DFAnode a, DFAnode b, boolean[][] diffTable) {
         if ( diffTable[a.id][b.id] ) return false;
@@ -86,14 +83,14 @@ public class DFA {
             }
         }
         // Create the equivalence classes and new DFA nodes.
-        DFA minimalDFA = new DFA(alphabet);
+        DFA minimalDFA = new DFA(alphabet, true);
         boolean[] alreadyClassified = new boolean[size];  // Populated with false at creation.
         Map<DFAnode, DFAnode> newNodePointers = new HashMap<>(size, 1);
         List<DFAnode> rootList = new LinkedList<>();
         for ( int i=0 ; i<size ; ++i ) if ( !alreadyClassified[i] ) {
             alreadyClassified[i] = true;
             DFAnode currNode = nodesList.get(i);
-            DFAnode newNode = minimalDFA.makeNode();
+            DFAnode newNode = (i==0) ? minimalDFA.deathNode : minimalDFA.makeNode();
             newNode.accepting = currNode.accepting;
             newNodePointers.put(currNode, newNode);
             rootList.add(currNode);
@@ -139,6 +136,28 @@ public class DFA {
             }
         }
         str.replace(0,1, ">");  // Start symbol
+        return str.toString();
+    }
+
+    public String toGVstring() {
+        Queue<DFAnode> queue = new LinkedList<>();
+        boolean[] alreadyQueued = new boolean[size];
+        queue.add(start);
+        alreadyQueued[start.id] = true;
+
+        StringBuilder str = ENFA.gvPrefix(start.id, new ArrayList<>(0));
+
+        while ( !queue.isEmpty() ) {
+            DFAnode node = queue.remove();
+            node.addToGVstringBuilder(str);
+            for ( DFAnode edge : node.edges.values() ) {
+                if ( !alreadyQueued[edge.id] ) {
+                    queue.add(edge);
+                    alreadyQueued[edge.id] = true;
+                }
+            }
+        }
+        str.append("}");
         return str.toString();
     }
 
