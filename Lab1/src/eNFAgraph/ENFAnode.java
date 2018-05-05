@@ -67,7 +67,8 @@ public class ENFAnode {
             str.append(prefix);
             str.append(edge.id);
             str.append(" [ label = \"");
-            str.append(edgeLetters.length>1 ? "Σ" : edgeLetters[0]);
+            Character c = edgeLetters[0];
+            str.append(edgeLetters.length>1 ? "Σ" : c == '\\' || c == '\"' ? "\\" + c.toString() : c.toString());
             str.append("\" ];");
             str.append(System.lineSeparator());
         } else {

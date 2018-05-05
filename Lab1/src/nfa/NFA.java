@@ -59,7 +59,8 @@ public class NFA {
         for (int i=0 ; i<transitionFcn.length ; i++) {
             String prefix = String.valueOf(i) + " -> ";
             if ( !(transitionFcn[i]==null) ) for (Character c : alphabet) {
-                String suffix = " [ label = \"" + c.toString() + "\" ];" + System.lineSeparator();
+                String escapedChar = c == '\\' || c == '\"' ? "\\" + c.toString() : c.toString();
+                String suffix = " [ label = \"" + escapedChar + "\" ];" + System.lineSeparator();
                 for (Integer edgeId : transitionFcn[i].get(c)) {
                     str.append(prefix);
                     str.append(edgeId);
