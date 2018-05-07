@@ -27,7 +27,7 @@ public class Main {
     }
 
     private static DFA compile(String regex, Character[] alphabet, boolean minimise, boolean searchEverySubstring) throws Exception {
-        if (searchEverySubstring) regex = ".*" + regex;
+        if (searchEverySubstring) regex = ".*(" + regex + ")";
         RegExp regexRoot = REParser.parse(regex);
         System.out.println(regexRoot.toString());
 
@@ -58,7 +58,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        BufferedReader input = new BufferedReader(new FileReader("./Lab1/tests/testcase3.txt"));
+        BufferedReader input = new BufferedReader(new FileReader("./Lab1/tests/case4.txt"));
         char[] tmp = input.readLine().toCharArray();
         Character[] alphabet = new Character[tmp.length];
         for (int i=0 ; i<tmp.length ;++i) alphabet[i] = tmp[i];
