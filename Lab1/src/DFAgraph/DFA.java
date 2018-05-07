@@ -60,7 +60,8 @@ public class DFA {
         return false;
     }
 
-    // Using the table filling method.
+    // Using the table filling method. If deathNode is the first in its equivalence class, ordered by index
+    // in nodesList, then the returned DFA will have a probed DeathNode for deathNode.
     public DFA minimise() {
         DFAnode[] fastList = nodesList.toArray(new DFAnode[size]);
         boolean[][] diffTable = new boolean[size][size];
@@ -90,7 +91,8 @@ public class DFA {
         for ( int i=0 ; i<size ; ++i ) if ( !alreadyClassified[i] ) {
             alreadyClassified[i] = true;
             DFAnode currNode = nodesList.get(i);
-            DFAnode newNode = (i==0) ? minimalDFA.deathNode : minimalDFA.makeNode();
+            //
+            DFAnode newNode = currNode == deathNode ? minimalDFA.deathNode : minimalDFA.makeNode();
             newNode.accepting = currNode.accepting;
             newNodePointers.put(currNode, newNode);
             rootList.add(currNode);
@@ -102,8 +104,7 @@ public class DFA {
         }
         // Wire the edges
         for ( DFAnode root : rootList ) {
-            Map<Character, DFAnode> newEdges;
-            newEdges = new HashMap<>(root.edges);
+            Map<Character, DFAnode> newEdges = new HashMap<>(root.edges);
             newEdges.replaceAll((c, oldNode) -> newNodePointers.get(oldNode));
             newNodePointers.get(root).edges = newEdges;
         }
