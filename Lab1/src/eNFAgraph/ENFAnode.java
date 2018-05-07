@@ -2,6 +2,13 @@ package eNFAgraph;
 
 import java.util.*;
 
+/**
+ * Epsilon-non-deterministic automaton node (i.e. state) class. Because of the
+ * special structure e-NFA's have in this project, they have a bunch of epsilon-
+ * edges implemented as a list of other nodes, but only a maximum of one lettered
+ * edge. This edge is expected to be labelled with exactly one letter or the
+ * entire alphabet, otherwise things may screw up elsewhere.
+ */
 public class ENFAnode {
     public boolean accepting = false;
     public ENFAnode edge;
@@ -13,20 +20,20 @@ public class ENFAnode {
     public int id;
 
     // Construct node without edges
-    public ENFAnode(int id) {
+    ENFAnode(int id) {
         this.id = id;
         hasLetterEdge = false;
         edgeLetters = null;
     }
     // Construct node with one lettered edge
-    public ENFAnode(int id, ENFAnode edge, Character[] edgeLetters) {
+    ENFAnode(int id, ENFAnode edge, Character[] edgeLetters) {
         this.id = id;
         hasLetterEdge = true;
         this.edge = edge;
         this.edgeLetters = edgeLetters;
     }
     // Construct node with one epsilon-edge
-    public ENFAnode(int id, ENFAnode epsilonEdge) {
+    ENFAnode(int id, ENFAnode epsilonEdge) {
         this.id = id;
         hasLetterEdge = false;
         emptyEdges.add(epsilonEdge);
@@ -61,6 +68,7 @@ public class ENFAnode {
         str.append("\n");
     }
 
+    // Create edge entries for this node, for the Graphviz format.
     void toGVstring(StringBuilder str) {
         String prefix = String.valueOf(id) + " -> ";
         if (hasLetterEdge) {
@@ -85,6 +93,10 @@ public class ENFAnode {
         emptyEdges.add(emptyEdge);
     }
 
+    /* Get epsilon-closure of this node. It is appended to reachables. This is
+     * a recursive construction so we also keep a list of queued nodes, that
+     * we fill upp with the nodes that are epsilon-reachable from this node,
+     * and a list of already queued nodes so we don't queue stuff up twice. */
     boolean getReachables(Map<Character, Set<ENFAnode>> reachables,
                        boolean[] alreadyQueuedNodes,
                        Queue<ENFAnode> queue) {
