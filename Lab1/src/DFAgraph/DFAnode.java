@@ -3,16 +3,25 @@ package DFAgraph;
 import java.util.Map;
 import java.util.HashMap;
 
+/**
+ * Deterministic automaton node class. Note that it has no public methods, since
+ * it is supposed to be handled by an NFA. It's properties are public however
+ * so that others can inspect it, and construct other things from them.
+ */
 public class DFAnode {
     public boolean accepting;
     public Map<Character, DFAnode> edges;
     public final int id;
 
+    // Returns true if node is accepting and we are at the very last
+    // node. index keeps track of the current char in str to evaluate.
     boolean strongEval(String str, int index) {
         if (index >= str.length()) return accepting;
         else return edges.get(str.charAt(index)).strongEval(str, ++index);
     }
 
+    // Returns true immediately if node is accepting. index keeps track of
+    // the current char in str to evaluate.
     boolean weakEval (String str, int index) {
         if (accepting || index >= str.length()) return accepting;
         else return edges.get(str.charAt(index)).weakEval(str, ++index);

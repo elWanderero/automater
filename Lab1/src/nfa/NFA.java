@@ -90,15 +90,15 @@ public class NFA {
      * separate and identify these sets in the proper way, even if we should construct the same
      * set multiple times. The EquivalenceClass is actually a Set of Integers.
      *
-     Other than that, it is the usual loop-through-a-graph-without-repetition technique. I call it the
-     queue-and-checklist technique. We start from the start
-     node, which is its own equivalence class, and construct the equivalence classes its edges lead to. These are
-     then put in a queue. The classes in this queue are evaluated in the same way, and the process iterates until the
-     queue is empty. To make sure that we don't evaluate the same element twice (reaching it several times via
-     different paths) we keep a checklist of all equivalence classes that have already been queued once. Since the
-     equivalence classes are subsets, this checklist is implemented as a lexicographically ordered Map (TreeMap, but
-     the lexicographic ordering capabilities come from the implementation of EquivalenceClass.)
-     *
+     * Other than that, it is the usual loop-through-a-graph-without-repetition technique. I call
+     * it the queue-and-checklist technique. We start from the start node, which is its own
+     * equivalence class, and construct the equivalence classes its edges lead to. These are then
+     * put in a queue. The classes in this queue are evaluated in the same way, and the process
+     * iterates until the queue is empty. To make sure that we don't evaluate the same element
+     * twice (reaching it several times via different paths) we keep a checklist of all equivalence
+     * classes that have already been queued once. Since the equivalence classes are subsets, this
+     * checklist is implemented as a lexicographically ordered Map (TreeMap, but the lexicographic
+     * ordering capabilities come from the implementation of EquivalenceClass.)
      */
     public DFA toDFA() {
         DFA dfa = new DFA(alphabet, true);

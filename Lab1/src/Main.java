@@ -9,11 +9,15 @@ public class Main {
 
     private static int fileCounter = 1;
 
+    // Takes a graphviz dot-compatible string, generates a .gv and then runs dot on it.
     private static void gvToFile(String str) throws IOException {
         String suffix = String.valueOf(fileCounter++);
         String gvFilename = "graph_" + suffix + ".gv";
         String svgFilename = "graph_" + suffix + ".svg";
-        String dotBinPath = "\"C:\\Program Files (x86)\\Graphviz2.38\\bin\\dot\"";
+        String dotCommand;
+        if (System.getProperty("os.name").equals("Windows 10"))
+            dotCommand = "\"C:\\Program Files (x86)\\Graphviz2.38\\bin\\dot\"";
+        else dotCommand = "dot";
 
         Writer writer = new BufferedWriter(
                             new OutputStreamWriter(
@@ -23,13 +27,19 @@ public class Main {
                         );
         writer.write(str);
         writer.close();
-        Runtime.getRuntime().exec(dotBinPath + " -T svg -o " + svgFilename + " " + gvFilename);
+        Runtime.getRuntime().exec(dotCommand + " -T svg -o " + svgFilename + " " + gvFilename);
     }
 
+    /* Does the entire regex -> e-NFA -> NFA -> DFA -> minimal DFA thingy.
+     * minimise is a flag that tells it whether or not to minimise (obviously)
+     * and searchEverySubstring tells it whether to look for any accepting
+     * contiguous substring, or only allow matching of the entire string.
+     */
     private static DFA compile(String regex, Character[] alphabet, boolean minimise, boolean searchEverySubstring) throws Exception {
         if (searchEverySubstring) regex = ".*(" + regex + ")";
         RegExp regexRoot = REParser.parse(regex);
         System.out.println(regexRoot.toString());
+        System.out.println();
 
         ENFA eNFA = new ENFA(alphabet);
         regexRoot.toENFA(eNFA);
@@ -59,11 +69,13 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         BufferedReader input = new BufferedReader(new FileReader("./Lab1/tests/case4.txt"));
-        char[] tmp = input.readLine().toCharArray();
-        Character[] alphabet = new Character[tmp.length];
-        for (int i=0 ; i<tmp.length ;++i) alphabet[i] = tmp[i];
-        DFA dfa = compile(input.readLine(), alphabet, true, false);
+        char[] tmp = input.readLine().toCharArray();  // 1st line is alphabaet
+        Character[] alphabet = new Character[tmp.length];  // 2nd line is regex
+        for (int i=0 ; i<tmp.length ;++i) alphabet[i] = tmp[i];  // Cast chars to Characters
 
+        DFA dfa = compile(input.readLine(), alphabet, true, true);
+
+        // Rest of input lines are evaluated with the DFA.
         input.lines().forEachOrdered(
                 str -> {
                     System.out.print(str);

@@ -1,5 +1,9 @@
 package DFAgraph;
 
+/**
+ * Special class to be used for nodes that have no outgoing paths to accepting
+ * states. It returns false immediately upon being reached in an evaluation.
+ */
 public class DeathNode extends DFAnode {
 
     DeathNode(Character[] alphabet, int id) {
