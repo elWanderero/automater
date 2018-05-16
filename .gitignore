@@ -84,3 +84,10 @@ fabric.properties
 
 # Java project structure file (I think)
 *.iml
+
+
+################################
+#           GraphViz           #
+################################
+*.gv
+*.svg
