@@ -1,3 +1,9 @@
+/* DD2372 Automata and Languages, vt2018
+ * Lab assignment 2: Model Checking Flow Graphs.
+ * Author: Daniel Zavala-Svensson
+ * kth-id: daniels@kth.se
+ */
+
 import java.io.*;
 
 import DFAgraph.DFA;
