@@ -15,12 +15,12 @@ public class Main {
     private static String dotCommand() {
         return thisIsWindows() ? "\"C:\\Program Files (x86)\\Graphviz2.38\\bin\\dot\"" : "dot";
     }
-    private static BufferedReader testReader(String testFileName) {
+    private static BufferedReader testReader(String testFileName) throws FileNotFoundException {
         File dir = thisIsWindows() ? new File("./Lab1/tests") : new File( "../tests");
         File testFile = new File(dir, testFileName);
         return new BufferedReader(new FileReader(testFile));
     }
-    private static Writer newGraphFileWriter(String graphName) {
+    private static Writer newGraphFileWriter(String graphName) throws FileNotFoundException, UnsupportedEncodingException {
         File dir = thisIsWindows() ? new File("./Lab1/graphs") : new File("../graphs");
         File graphFile = new File(dir, graphName);
         Writer writer = new BufferedWriter(
