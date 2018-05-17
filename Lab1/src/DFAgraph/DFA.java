@@ -62,6 +62,9 @@ public class DFA {
         this.start = start;
     }
 
+    public int getSize() { return size; }
+
+    // Evaluate according to settings.
     public boolean eval(String str) { return strongEvaluation ? strongEval(str) : weakEval(str); }
 
     // Evaluate entire string. So only return true if at accepting state at last char.
