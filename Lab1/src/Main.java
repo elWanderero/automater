@@ -12,16 +12,19 @@ import nfa.NFA;
 import resyntax.*;
 
 public class Main {
-    private static String dotCommand() {
-        return thisIsWindows() ? "\"C:\\Program Files (x86)\\Graphviz2.38\\bin\\dot\"" : "dot";
-    }
+
+    private static final String winTestsDirPath = "./Lab1/tests";
+    private static final String linuxTestsDirPath = "../tests";
     private static BufferedReader testReader(String testFileName) throws FileNotFoundException {
-        File dir = thisIsWindows() ? new File("./Lab1/tests") : new File( "../tests");
+        File dir = thisIsWindows() ? new File(winTestsDirPath) : new File(linuxTestsDirPath);
         File testFile = new File(dir, testFileName);
         return new BufferedReader(new FileReader(testFile));
     }
+
+    private static final String winGraphsDirPath = "./Lab1/graphs";
+    private static final String linuxGraphsDirPath = "../graphs";
     private static Writer newGraphFileWriter(String graphName) throws FileNotFoundException, UnsupportedEncodingException {
-        File dir = thisIsWindows() ? new File("./Lab1/graphs") : new File("../graphs");
+        File dir = thisIsWindows() ? new File(winGraphsDirPath) : new File(linuxGraphsDirPath);
         File graphFile = new File(dir, graphName);
         Writer writer = new BufferedWriter(
                             new OutputStreamWriter(
@@ -31,19 +34,27 @@ public class Main {
                         );
         return writer;
     }
+
+    private static final String winDotCommand = "\"C:\\Program Files (x86)\\Graphviz2.38\\bin\\dot\"";
+    private static final String linuxDotCommand = "dot";
+    private static void runDot(String gvFilename, String svgFilename) throws IOException {
+        String graphsDir = thisIsWindows() ? winGraphsDirPath +"/" : linuxGraphsDirPath +"/";
+        String dotCommand = thisIsWindows() ? winDotCommand : linuxDotCommand;
+        Runtime.getRuntime().exec(dotCommand + " -T svg -o " + graphsDir + svgFilename + " " + graphsDir + gvFilename);
+    }
     
     private static int fileCounter = 1;
 
     // Takes a graphviz dot-compatible string, generates a .gv and then runs dot on it.
-    private static void gvToFile(String str) throws IOException {
+    private static void gvToFile(String gvStr) throws IOException {
         String suffix = String.valueOf(fileCounter++);
         String gvFilename = "graph_" + suffix + ".gv";
         String svgFilename = "graph_" + suffix + ".svg";
 
         Writer writer = newGraphFileWriter(gvFilename);
-        writer.write(str);
+        writer.write(gvStr);
         writer.close();
-        Runtime.getRuntime().exec(dotCommand() + " -T svg -o " + svgFilename + " " + gvFilename);
+        runDot(gvFilename, svgFilename);
     }
 
     /* Does the entire regex -> e-NFA -> NFA -> DFA -> minimal DFA thingy.
