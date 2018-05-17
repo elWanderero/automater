@@ -119,7 +119,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        String testFileName = args.length == 0 ? "case11.txt" : args[0];
+        String testFileName = args.length == 0 ? "mytest1.txt" : args[0];
         BufferedReader input = testReader(testFileName);
         char[] tmp = input.readLine().toCharArray();  // 1st line is alphabaet
         Character[] alphabet = new Character[tmp.length];  // 2nd line is regex

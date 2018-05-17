@@ -1,2 +1,16 @@
+abcd
+(ab)+|bd
+aaaa
+
 ab
-(ab)*
+abab
+bd
+a
+b
+c
+d
+bdab
+cababc
+cccccbd
+bdccccc
+aadba
