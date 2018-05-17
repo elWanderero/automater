@@ -5,6 +5,8 @@
  */
 
 import java.io.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import DFAgraph.DFA;
 import eNFAgraph.ENFA;
@@ -47,6 +49,17 @@ public class Main {
 
     // Takes a graphviz dot-compatible string, generates a .gv and then runs dot on it.
     private static void gvToFile(String gvStr) throws IOException {
+        // Count lines in gvStr as a measure of size. Ironically we do this with regex
+        // so with just some extra functionality we could do it with this very package.
+        Matcher matcher = Pattern.compile("\r\n|\r|\n").matcher(gvStr);
+        int lineCount = 0;
+        while (matcher.find()) lineCount++;
+        // Dot runs fine up to a few thousand edges, but too big a graph is pointless
+        if ( lineCount>500 ) {
+            System.err.println("Graphviz file too big, dot aborted.");
+            return;
+        }
+
         String suffix = String.valueOf(fileCounter++);
         String gvFilename = "graph_" + suffix + ".gv";
         String svgFilename = "graph_" + suffix + ".svg";
@@ -83,13 +96,20 @@ public class Main {
         gvToFile(dfa.toGVstring());
         System.out.println(dfa.toString());
 
+        System.out.println(eNFA.size);
+        System.out.println(nfa.sizeBound);
+        System.out.println(dfa.getSize());
+
         if (minimise) {
             dfa = dfa.minimise();
             gvToFile(dfa.toGVstring());
             System.out.println(dfa.toString(false));
         }
 
+        System.out.println(dfa.getSize());
+
         dfa.strongEvaluation = !searchEverySubstring;
+
 
         return dfa;
     }
@@ -99,7 +119,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        String testFileName = args.length == 0 ? "case4.txt" : args[0];
+        String testFileName = args.length == 0 ? "case11.txt" : args[0];
         BufferedReader input = testReader(testFileName);
         char[] tmp = input.readLine().toCharArray();  // 1st line is alphabaet
         Character[] alphabet = new Character[tmp.length];  // 2nd line is regex
@@ -111,7 +131,7 @@ public class Main {
         input.lines().forEachOrdered(
                 str -> {
                     System.out.print(str);
-                    System.out.println(dfa.eval(str) ? " YES!" : " nope");
+                    System.out.println(dfa.eval(str) ? "\t\tYES!" : "\t\tNO");
                 }
         );
     }
