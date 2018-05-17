@@ -121,7 +121,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         String testFileName = args.length == 0 ? "mytest1.txt" : args[0];
         BufferedReader input = testReader(testFileName);
-        char[] tmp = input.readLine().toCharArray();  // 1st line is alphabaet
+        char[] tmp = input.readLine().toCharArray();  // 1st line is alphabet
         Character[] alphabet = new Character[tmp.length];  // 2nd line is regex
         for (int i=0 ; i<tmp.length ;++i) alphabet[i] = tmp[i];  // Cast chars to Characters
 
