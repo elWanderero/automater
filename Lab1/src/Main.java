@@ -12,7 +12,26 @@ import nfa.NFA;
 import resyntax.*;
 
 public class Main {
-
+    private static String dotCommand() {
+        return thisIsWindows() ? "\"C:\\Program Files (x86)\\Graphviz2.38\\bin\\dot\"" : "dot";
+    }
+    private static BufferedReader testReader(String testFileName) {
+        File dir = thisIsWindows() ? new File("./Lab1/tests") : new File( "../tests");
+        File testFile = new File(dir, testFileName);
+        return new BufferedReader(new FileReader(testFile));
+    }
+    private static Writer newGraphFileWriter(String graphName) {
+        File dir = thisIsWindows() ? new File("./Lab1/graphs") : new File("../graphs");
+        File graphFile = new File(dir, graphName);
+        Writer writer = new BufferedWriter(
+                            new OutputStreamWriter(
+                                new FileOutputStream(graphFile),
+                            "utf-8"
+                            )
+                        );
+        return writer;
+    }
+    
     private static int fileCounter = 1;
 
     // Takes a graphviz dot-compatible string, generates a .gv and then runs dot on it.
@@ -20,20 +39,11 @@ public class Main {
         String suffix = String.valueOf(fileCounter++);
         String gvFilename = "graph_" + suffix + ".gv";
         String svgFilename = "graph_" + suffix + ".svg";
-        String dotCommand;
-        if (System.getProperty("os.name").equals("Windows 10"))
-            dotCommand = "\"C:\\Program Files (x86)\\Graphviz2.38\\bin\\dot\"";
-        else dotCommand = "dot";
 
-        Writer writer = new BufferedWriter(
-                            new OutputStreamWriter(
-                                new FileOutputStream(gvFilename),
-                            "utf-8"
-                            )
-                        );
+        Writer writer = newGraphFileWriter(gvFilename);
         writer.write(str);
         writer.close();
-        Runtime.getRuntime().exec(dotCommand + " -T svg -o " + svgFilename + " " + gvFilename);
+        Runtime.getRuntime().exec(dotCommand() + " -T svg -o " + svgFilename + " " + gvFilename);
     }
 
     /* Does the entire regex -> e-NFA -> NFA -> DFA -> minimal DFA thingy.
@@ -73,8 +83,13 @@ public class Main {
         return dfa;
     }
 
+    private static boolean thisIsWindows() {
+        return System.getProperty("os.name").equals("Windows 10");
+    }
+
     public static void main(String[] args) throws Exception {
-        BufferedReader input = new BufferedReader(new FileReader("./Lab1/tests/case4.txt"));
+        String testFileName = args.length == 0 ? "case4.txt" : args[0];
+        BufferedReader input = testReader(testFileName);
         char[] tmp = input.readLine().toCharArray();  // 1st line is alphabaet
         Character[] alphabet = new Character[tmp.length];  // 2nd line is regex
         for (int i=0 ; i<tmp.length ;++i) alphabet[i] = tmp[i];  // Cast chars to Characters
