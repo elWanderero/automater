@@ -96,20 +96,13 @@ public class Main {
         gvToFile(dfa.toGVstring());
         System.out.println(dfa.toString());
 
-        System.out.println(eNFA.size);
-        System.out.println(nfa.sizeBound);
-        System.out.println(dfa.getSize());
-
         if (minimise) {
             dfa = dfa.minimise();
             gvToFile(dfa.toGVstring());
             System.out.println(dfa.toString(false));
         }
 
-        System.out.println(dfa.getSize());
-
         dfa.strongEvaluation = !searchEverySubstring;
-
 
         return dfa;
     }
