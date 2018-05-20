@@ -100,7 +100,14 @@ public class ENFAnode {
     boolean getReachables(Map<Character, Set<ENFAnode>> reachables,
                        boolean[] alreadyQueuedNodes,
                        Queue<ENFAnode> queue) {
-        if (hasLetterEdge) for (Character c : edgeLetters) reachables.get(c).add(edge);
+        if (hasLetterEdge) for (Character c : edgeLetters)
+            try {
+                reachables.get(c).add(edge);
+            } catch (NullPointerException e) {
+                System.err.println(String.format("Regex symbol not in alphabet: '%c'", c));
+                System.err.println();
+                throw e;
+            }
         for (ENFAnode epsEdge : emptyEdges) {
             if (!alreadyQueuedNodes[epsEdge.id]) {
                 queue.add(epsEdge);
