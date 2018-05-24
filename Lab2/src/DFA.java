@@ -5,15 +5,17 @@ import java.util.stream.Stream;
 public class DFA {
 
     String start = "";
-    Set<String> acceptingNodes = new HashSet<>();
-    Set<String> failNodes = new HashSet<>();
+    Set<String> acceptingNodes = new TreeSet<>();
+    Set<String> failNodes = new TreeSet<>();
     private Map<String, Boolean> allNodes = new HashMap<>();  // boolean is for acceptingness
-    public Set<DFAedge> allEdges = new HashSet<>();
-
+    public Set<DFAedge> allEdges = new TreeSet<>();
 
     public void addTransitions(Stream<String> edges) {
         edges.forEach((String str) -> {
-            try { parse(str); } catch (ParseException e) { System.err.println(e.getMessage()); }
+            try { parse(str); }
+            catch (ParseException e) {
+                System.err.println(e.getMessage());
+            }
         });
     }
 
@@ -71,8 +73,9 @@ public class DFA {
             edge = parseEdge(chars);
             stateTo = parseState(chars, false);
         } catch (ParseException e) {
+            e.printStackTrace();
             String err_msg = String.format(
-                    "Error in '$s'. $s",
+                    "Error in '%s'. %s",
                     edgeStr,
                     e.getMessage());
             throw new ParseException(err_msg, 0);
@@ -96,10 +99,8 @@ public class DFA {
         char next = removeAndCheckNonempty(chars);
         switch (next) {
             case '=':
-                next = removeAndCheckNonempty(chars);
-                if (checkForAndRemove(chars, '>')) stateLabel = parseState(chars, start);
+                if (checkForAndRemove(chars, '>')) stateLabel = parseState(chars, true);
                 else throw expectedGottenFormatException('>', next);
-                parseState(chars, true);
                 break;
             case '(':
                 stateLabel = parseLabel(chars);
@@ -121,12 +122,13 @@ public class DFA {
     }
 
     private void makeState(String label, boolean starting, boolean accepting) throws ParseException {
-        if ( allNodes.containsKey(label) )
-            if ( allNodes.get(label) != accepting ) {
+        if ( allNodes.containsKey(label) ) {
+            if (allNodes.get(label) != accepting) {
                 String err_msg = String.format(
                         "Acceptingness of state '%s' inconsistent with previously used brackets",
                         label);
                 throw new ParseException(err_msg, 0);
+            }
         } else {
             allNodes.put(label, accepting);
             if ( accepting ) acceptingNodes.add(label);
@@ -149,8 +151,9 @@ public class DFA {
         StringBuilder label = new StringBuilder();
         char next = chars.element();
         while ( compliesWithForbiddenLabelChars(next) ) {
-            label.append(next);
             next = removeAndCheckNonempty(chars);
+            label.append(next);
+            next = chars.element();
         }
         if ( label.length()==0 ) throw new ParseException("Empty label name.", 0);
         return label.toString();
