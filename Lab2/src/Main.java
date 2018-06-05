@@ -48,14 +48,14 @@ public class Main {
     private static void runDot(String gvFilename, String svgFilename) throws IOException {
         String graphsDir = thisIsWindows() ? winGraphsDirPath +"/" : linuxGraphsDirPath +"/";
         String dotCommand = thisIsWindows() ? winDotCommand : linuxDotCommand;
-        Runtime.getRuntime().exec(dotCommand + " -T svg -o " + graphsDir + svgFilename + " " + graphsDir + gvFilename);
+        String cmd = dotCommand + " -T svg -o " + graphsDir + svgFilename + " " + graphsDir + gvFilename;
+        Runtime.getRuntime().exec(cmd);
     }
 
     private static int fileCounter = 1;
     // Takes a graphviz dot-compatible string, generates a .gv and then runs dot on it.
     private static void gvToFile(String gvStr) throws IOException {
-        // Count lines in gvStr as a measure of size. Ironically we do this with regex
-        // so with just some extra functionality we could do it with this very package.
+        // Count lines in gvStr as a measure of size.
         Matcher matcher = Pattern.compile("\r\n|\r|\n").matcher(gvStr);
         int lineCount = 0;
         while (matcher.find()) lineCount++;
@@ -75,45 +75,46 @@ public class Main {
         runDot(gvFilename, svgFilename);
     }
 
+    private static String fixWeirdAssFlowGraphs(String weirdAssFG, String prefix) {
+        // Remove internal method prefixes
+        String ret = weirdAssFG.replaceAll(prefix+"-", "");
+        return ret.replaceAll("(edge\\s+[^\\s]+\\s+[^\\s]+)\\s+[^\\s]+-[^\\s]+", "$1 eps" );
+    }
+
+    private static String fixWeirdAssSpecs(String weirdAssFG, String prefix) {
+        // Remove internal method prefixes
+        String ret = weirdAssFG.replaceAll(prefix+"-", "");
+        // Replace external calls with eps
+        return ret.replaceAll("-java(-[^\\n]+)*->", "-eps->" );
+    }
+
     public static void main(String[] args) throws Exception {
         String dir = args.length == 0 ? "EvenOdd" : args[0];
 
         File fgFile = getFilesWithEnding(dir, ".cfg")[0];
         File[] specs = getFilesWithEnding(dir, ".spec");
 
-        FG flowGraph = new FG();
         BufferedReader input = new BufferedReader(new FileReader(fgFile));
-        Stream<String> lines = input.lines();
-        // Remove internal method prefixes
-        lines = lines.map( str -> str.replaceAll(dir+"-", ""));
-        // Replace external method calls with eps.
-        lines = lines.map( str -> str.replaceAll("(edge\\s+[^\\s]+\\s+[^\\s]+)\\s+[^\\s]+-[^\\s]+", "$1 eps" ));
+        // Fix idiosyncrasies in the test cfg:s
+        Stream<String> lines = input.lines().map( str -> fixWeirdAssFlowGraphs(str, dir) );
+
+        FG flowGraph = new FG();
         flowGraph.addTransitions(lines);
         input.close();
         System.out.println(flowGraph.toString());
+        gvToFile(flowGraph.toGVstring());
 
-//        List<DFA> dfas = new ArrayList<>(specs.length);
-//        for ( File spec : specs ) {
-//            DFA dfa = new DFA();
-//            input = new BufferedReader(new FileReader(spec));
-//            dfa.addTransitions(input.lines());
-//            input.close();
-//            dfas.add(dfa);
-//            System.out.println(dfa.toString());
-//            System.out.println();
-//        }
+        List<DFA> dfas = new ArrayList<>(specs.length);
+        for ( File spec : specs ) {
+            DFA dfa = new DFA();
+            input = new BufferedReader(new FileReader(spec));
+            dfa.addTransitions(input.lines().map(str->fixWeirdAssSpecs(str,dir)));
+            input.close();
+            dfas.add(dfa);
+            System.out.println(dfa.toString());
+            System.out.println();
+            gvToFile(dfa.toGVstring());
+        }
 
-//        char[] tmp = input.readLine().toCharArray();  // 1st line is alphabaet
-//        Character[] alphabet = new Character[tmp.length];  // 2nd line is regex
-//        for (int i=0 ; i<tmp.length ;++i) alphabet[i] = tmp[i];  // Cast chars to Characters
-//
-//
-//        // Rest of input lines are evaluated with the DFA.
-//        input.lines().forEachOrdered(
-//                str -> {
-//                    System.out.print(str);
-//                    System.out.println(dfa.eval(str) ? " YES!" : " nope");
-//                }
-//        );
     }
 }
