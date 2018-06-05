@@ -1,14 +1,17 @@
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Stream;
+import static java.lang.String.format;
 
 public class DFA {
 
     String start = "";
-    Set<String> acceptingNodes = new TreeSet<>();
-    Set<String> failNodes = new TreeSet<>();
+    Set<String> acceptingNodes = new HashSet<>();
+    Set<String> failNodes = new HashSet<>();
     private Map<String, Boolean> allNodes = new HashMap<>();  // boolean is for acceptingness
-    public Set<DFAedge> allEdges = new TreeSet<>();
+    public Set<DFAedge> allEdges = new HashSet<>();
+
+    private static final String line = System.lineSeparator();
 
     public void addTransitions(Stream<String> edges) {
         edges.forEach((String str) -> {
@@ -19,6 +22,30 @@ public class DFA {
         });
     }
 
+    ////////////////////////////////////////////////////
+    //                   toGraphviz                   //
+    ////////////////////////////////////////////////////
+
+    public String toGVstring() {
+        StringBuilder str = new StringBuilder("digraph spec_DFA {");
+        str.append(line);
+        str.append("rankdir=LR; size=\"19,11\"");
+        str.append(line);
+//        str.append("node [shape = cds]; ");
+        for ( String node: acceptingNodes )
+            str.append(format("node [shape=doublecircle]; %s;%s", node, line));
+        if ( !start.equals("") ) {
+            str.append("node [shape=point]; invisibleStart");
+            str.append(format("%s->invisibleStart->%s;%s", line, start, line));
+        }
+        for ( DFAedge edge: allEdges )
+            str.append(format("%s->%s [label=\"%s\"];%s", edge.q0, edge.q1, edge.v, line));
+        return str.toString();
+    }
+
+    ////////////////////////////////////////////////////
+    //                    toString                    //
+    ////////////////////////////////////////////////////
     @Override
     public String toString() {
         boolean startAlreadyPrinted = false;
@@ -31,13 +58,11 @@ public class DFA {
         }
         return str.toString();
     }
-
     private void addEdgeToStrBuilder(StringBuilder str, String edgeLabel) {
         str.append('-');
         str.append(edgeLabel);
         str.append("->");
     }
-
     private boolean addStateToStrBuilder(StringBuilder str, String state, boolean startAlreadyPrinted) {
         boolean startWasPrinted = false;
         if ( !startAlreadyPrinted && state.equals(start) ) {
@@ -56,6 +81,9 @@ public class DFA {
         return startWasPrinted;
     }
 
+    ////////////////////////////////////////////////////
+    //                    parsing                     //
+    ////////////////////////////////////////////////////
     // Parse using recursive descent
     private void parse(String edgeStr) throws ParseException {
         // Empty edge ok, just doesn't do anything
@@ -74,7 +102,7 @@ public class DFA {
             stateTo = parseState(chars, false);
         } catch (ParseException e) {
             e.printStackTrace();
-            String err_msg = String.format(
+            String err_msg = format(
                     "Error in '%s'. %s",
                     edgeStr,
                     e.getMessage());
@@ -113,7 +141,7 @@ public class DFA {
                 makeState(stateLabel, start, false);
                 break;
             default:
-                String err_str = String.format(
+                String err_str = format(
                         "Expected state initialiser '=>', '(' or '['. Found '%c'",
                         next);
                 throw new ParseException(err_str, 0);
@@ -124,7 +152,7 @@ public class DFA {
     private void makeState(String label, boolean starting, boolean accepting) throws ParseException {
         if ( allNodes.containsKey(label) ) {
             if (allNodes.get(label) != accepting) {
-                String err_msg = String.format(
+                String err_msg = format(
                         "Acceptingness of state '%s' inconsistent with previously used brackets",
                         label);
                 throw new ParseException(err_msg, 0);
@@ -138,7 +166,7 @@ public class DFA {
     }
 
     private static ParseException expectedGottenFormatException(char expected, char gotten) {
-        return new ParseException(String.format("Expected '%c', found '%c'.", expected, gotten), 0);
+        return new ParseException(format("Expected '%c', found '%c'.", expected, gotten), 0);
     }
 
     private static boolean compliesWithForbiddenLabelChars(char c) {
