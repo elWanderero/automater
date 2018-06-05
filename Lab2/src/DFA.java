@@ -28,19 +28,18 @@ public class DFA {
 
     public String toGVstring() {
         StringBuilder str = new StringBuilder("digraph spec_DFA {");
-        str.append(line);
-        str.append("rankdir=LR; size=\"19,11\"");
-        str.append(line);
-//        str.append("node [shape = cds]; ");
+        str.append(format("%nrankdir=LR; size=\"19,11\"%n"));
+        str.append(format("node [shape=circle];%n"));
         for ( String node: acceptingNodes )
-            str.append(format("node [shape=doublecircle]; %s;%s", node, line));
+            str.append(format("node [shape=doublecircle]; %s;%n", node));
         if ( !start.equals("") ) {
-            str.append("node [shape=point]; invisibleStart");
-            str.append(format("%s->invisibleStart->%s;%s", line, start, line));
+            str.append("node [shape=point]; invisibleStart;");
+            str.append(format("%ninvisibleStart->%s;%n", start));
         }
+        str.append(format("node [shape=circle];%n"));  // default node shape.
         for ( DFAedge edge: allEdges )
-            str.append(format("%s->%s [label=\"%s\"];%s", edge.q0, edge.q1, edge.v, line));
-        return str.toString();
+            str.append(format("%s->%s [label=\"%s\"];%n", edge.q0, edge.q1, edge.v));
+        return str.append("}").toString();
     }
 
     ////////////////////////////////////////////////////
@@ -59,9 +58,7 @@ public class DFA {
         return str.toString();
     }
     private void addEdgeToStrBuilder(StringBuilder str, String edgeLabel) {
-        str.append('-');
-        str.append(edgeLabel);
-        str.append("->");
+        str.append(format("-%s->", edgeLabel));
     }
     private boolean addStateToStrBuilder(StringBuilder str, String state, boolean startAlreadyPrinted) {
         boolean startWasPrinted = false;
@@ -69,15 +66,8 @@ public class DFA {
             str.append("=>");
             startWasPrinted = true;
         }
-        if ( allNodes.get(state) ) {
-            str.append('(');
-            str.append(state);
-            str.append(')');
-        } else {
-            str.append('[');
-            str.append(state);
-            str.append(']');
-        }
+        if ( allNodes.get(state) ) str.append(format("(%s)", state));
+        else str.append(format("[%s]", state));
         return startWasPrinted;
     }
 

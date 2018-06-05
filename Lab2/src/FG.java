@@ -31,26 +31,27 @@ public class FG {
     ////////////////////////////////////////////////////
     //                   toGraphviz                   //
     ////////////////////////////////////////////////////
-
+    // TODO: Add method names somewhere.
     public String toGVstring() {
         StringBuilder str = new StringBuilder("digraph flow_graph {");
         str.append(line);
         str.append("size=\"19,11\"");
 //        str.append("rankdir=LR; size=\"19,11\"");
         str.append(line);
+        str.append(format("node [shape=circle];%n"));
         for ( String node: returnNodes )  // Make return nodes double circles
-            str.append(format("node [shape=doublecircle]; %s;%s", node, line));
+            str.append(format("node [shape=doublecircle]; %s;%n", node));
         StringBuilder startArrows = new StringBuilder();
         for ( String method: methods ) {  // Add entry point arrows
             String entry = methodEntryPoints.get(method);
-            str.append(format("node [shape=point]; %s_entry_indicator;%s", entry, line));
-            startArrows.append(format("%s_entry_indicator->%s;%s", entry, entry, line));
+            str.append(format("node [shape=point]; %s_entry_indicator;%n", entry));
+            startArrows.append(format("%s_entry_indicator->%s;%n", entry, entry));
         }
+        str.append(format("node [shape=circle];%n"));  // default node shape.
         str.append(startArrows);
         for ( DFAedge e: edges )
-            str.append(format("%s->%s [label=\"%s\"];%s", e.q0, e.q1, e.v.equals("eps")?"ε":e.v, line));
-        str.setLength( str.length()-1 );  // Remove last newline.
-        return str.toString();
+            str.append(format("%s->%s [label=\"%s\"];%n", e.q0, e.q1, e.v.equals("eps")?"ε":e.v));
+        return str.append("}").toString();
     }
 
     ////////////////////////////////////////////////////
