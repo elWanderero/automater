@@ -1,5 +1,5 @@
 /* DD2372 Automata and Languages, vt2018
- * Lab assignment 2: Model Checking Flow Graphs.
+ * Lab assignment 1: Regular Expressions and Text Search.
  * Author: Daniel Zavala-Svensson
  * kth-id: daniels@kth.se
  */
@@ -28,13 +28,12 @@ public class Main {
     private static Writer newGraphFileWriter(String graphName) throws FileNotFoundException, UnsupportedEncodingException {
         File dir = thisIsWindows() ? new File(winGraphsDirPath) : new File(linuxGraphsDirPath);
         File graphFile = new File(dir, graphName);
-        Writer writer = new BufferedWriter(
+        return new BufferedWriter(
                             new OutputStreamWriter(
                                 new FileOutputStream(graphFile),
                             "utf-8"
                             )
                         );
-        return writer;
     }
 
     private static final String winDotCommand = "\"C:\\Program Files (x86)\\Graphviz2.38\\bin\\dot\"";
@@ -112,13 +111,13 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        String testFileName = args.length == 0 ? "mytest1.txt" : args[0];
+        String testFileName = args.length == 0 ? "case10.txt" : args[0];
         BufferedReader input = testReader(testFileName);
         char[] tmp = input.readLine().toCharArray();  // 1st line is alphabet
         Character[] alphabet = new Character[tmp.length];  // 2nd line is regex
         for (int i=0 ; i<tmp.length ;++i) alphabet[i] = tmp[i];  // Cast chars to Characters
 
-        DFA dfa = compile(input.readLine(), alphabet, true, true);
+        DFA dfa = compile(input.readLine(), alphabet, true, false);
 
         // Rest of input lines are evaluated with the DFA.
         input.lines().forEachOrdered(
