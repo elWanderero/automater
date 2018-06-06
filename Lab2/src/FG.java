@@ -34,20 +34,24 @@ public class FG {
     // TODO: Add method names somewhere.
     public String toGVstring() {
         StringBuilder str = new StringBuilder("digraph flow_graph {");
+        str.append(format("%nsize=\"19,11\"%n"));
+
+        // Make return nodes double circles
+        str.append(format("node [shape=doublecircle];%n"));
+        for ( String node: returnNodes )
+            str.append(format("%s; ", node));
         str.append(line);
-        str.append("size=\"19,11\"");
-//        str.append("rankdir=LR; size=\"19,11\"");
-        str.append(line);
-        str.append(format("node [shape=circle];%n"));
-        for ( String node: returnNodes )  // Make return nodes double circles
-            str.append(format("node [shape=doublecircle]; %s;%n", node));
+
+        // Add entry point arrows
         StringBuilder startArrows = new StringBuilder();
-        for ( String method: methods ) {  // Add entry point arrows
+        str.append(format("node [shape=point];%n"));
+        for ( String method: methods ) {
             String entry = methodEntryPoints.get(method);
-            str.append(format("node [shape=point]; %s_entry_indicator;%n", entry));
-            startArrows.append(format("%s_entry_indicator->%s;%n", entry, entry));
+            str.append(format("%s_entry_indicator; ", entry));
+            startArrows.append(format("%s_entry_indicator->%s [label=\"%s\"];%n", entry, entry, method));
         }
-        str.append(format("node [shape=circle];%n"));  // default node shape.
+
+        str.append(format("%nnode [shape=circle];%n"));  // default node shape.
         str.append(startArrows);
         for ( DFAedge e: edges )
             str.append(format("%s->%s [label=\"%s\"];%n", e.q0, e.q1, e.v.equals("eps")?"ε":e.v));
@@ -66,9 +70,8 @@ public class FG {
             if ( methodEntryPoints.get(nodeMethods.get(node)).equals(node) ) str.append(" entry");
             str.append(line);
         }
-        for ( DFAedge edge : edges ) {
+        for ( DFAedge edge : edges )
             str.append(format("edge %s %s %s%s", edge.q0, edge.q1, edge.v.equals("eps")?"ε":edge.v, line));
-        }
         return str.toString();
     }
 

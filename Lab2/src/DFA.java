@@ -29,16 +29,18 @@ public class DFA {
     public String toGVstring() {
         StringBuilder str = new StringBuilder("digraph spec_DFA {");
         str.append(format("%nrankdir=LR; size=\"19,11\"%n"));
-        str.append(format("node [shape=circle];%n"));
+        str.append(format("node [shape=doublecircle];%n"));
         for ( String node: acceptingNodes )
-            str.append(format("node [shape=doublecircle]; %s;%n", node));
+            str.append(format("%s; ", node));
+        str.append(line);
+
         if ( !start.equals("") ) {
             str.append("node [shape=point]; invisibleStart;");
-            str.append(format("%ninvisibleStart->%s;%n", start));
-        }
-        str.append(format("node [shape=circle];%n"));  // default node shape.
-        for ( DFAedge edge: allEdges )
-            str.append(format("%s->%s [label=\"%s\"];%n", edge.q0, edge.q1, edge.v));
+            str.append(format("%nnode [shape=circle];%n"));  // default node shape.
+            str.append(format("invisibleStart->%s;%n", start));
+        } else str.append(format("node [shape=circle];%n"));  // default node shape.
+        for ( DFAedge e: allEdges )
+            str.append(format("%s->%s [label=\"%s\"];%n", e.q0, e.q1, e.v.equals("eps")?"ε":e.v));
         return str.append("}").toString();
     }
 
