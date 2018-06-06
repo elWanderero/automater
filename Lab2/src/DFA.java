@@ -8,7 +8,7 @@ public class DFA {
     String start = "";
     Set<String> acceptingNodes = new HashSet<>();
     Set<String> failNodes = new HashSet<>();
-    private Map<String, Boolean> allNodes = new HashMap<>();  // boolean is for acceptingness
+//    private Map<String, Boolean> allNodes = new HashMap<>();  // boolean is for acceptingness
     public Set<DFAedge> allEdges = new HashSet<>();
 
     private static final String line = System.lineSeparator();
@@ -20,6 +20,15 @@ public class DFA {
                 System.err.println(e.getMessage());
             }
         });
+    }
+
+    /**
+     * Change the DFA to its complement.
+     */
+    public void invert() {
+        Set<String> swap = acceptingNodes;
+        acceptingNodes = failNodes;
+        failNodes = swap;
     }
 
     ////////////////////////////////////////////////////
@@ -68,7 +77,7 @@ public class DFA {
             str.append("=>");
             startWasPrinted = true;
         }
-        if ( allNodes.get(state) ) str.append(format("(%s)", state));
+        if ( acceptingNodes.contains(state) ) str.append(format("(%s)", state));
         else str.append(format("[%s]", state));
         return startWasPrinted;
     }
@@ -142,19 +151,23 @@ public class DFA {
     }
 
     private void makeState(String label, boolean starting, boolean accepting) throws ParseException {
-        if ( allNodes.containsKey(label) ) {
-            if (allNodes.get(label) != accepting) {
+        if ( failNodes.contains(label) || acceptingNodes.contains(label) ) {
+            if ( accepting != acceptingNodes.contains(label) ) {
                 String err_msg = format(
                         "Acceptingness of state '%s' inconsistent with previously used brackets",
                         label);
                 throw new ParseException(err_msg, 0);
             }
         } else {
-            allNodes.put(label, accepting);
-            if ( accepting ) acceptingNodes.add(label);
+            if (accepting) acceptingNodes.add(label);
             else failNodes.add(label);
         }
-        if ( starting ) start = label;
+        if ( starting ) {
+            if ( !start.equals("") && ! start.equals(label) ) {
+                String err_msg = format("Multiple entry points. Got %s. Already had %s.", label, start);
+                throw new ParseException(err_msg, 0);
+            } else start = label;
+        }
     }
 
     private static ParseException expectedGottenFormatException(char expected, char gotten) {
