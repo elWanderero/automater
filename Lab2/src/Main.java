@@ -6,7 +6,6 @@
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,13 +42,16 @@ public class Main {
                 )
         );
     }
-    private static final String winDotCommand = "\"C:\\Program Files (x86)\\Graphviz2.38\\bin\\dot\"";
+    private static final String winDotCommand = "dot"; //"\"C:\\Program Files (x86)\\Graphviz2.38\\bin\\dot\"";
     private static final String linuxDotCommand = "dot";
     private static void runDot(String gvFilename, String svgFilename) throws IOException {
         String graphsDir = thisIsWindows() ? winGraphsDirPath +"/" : linuxGraphsDirPath +"/";
         String dotCommand = thisIsWindows() ? winDotCommand : linuxDotCommand;
         String cmd = dotCommand + " -T svg -o " + graphsDir + svgFilename + " " + graphsDir + gvFilename;
-        Runtime.getRuntime().exec(cmd);
+        // Run cmd an bind process to variable to get output.
+        Process proc = Runtime.getRuntime().exec(cmd);
+        (new BufferedReader(new InputStreamReader(proc.getInputStream()))).lines().forEach(System.out::println);
+        (new BufferedReader(new InputStreamReader(proc.getErrorStream()))).lines().forEach(System.err::println);
     }
 
     private static int fileCounter = 1;
