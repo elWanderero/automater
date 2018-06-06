@@ -56,6 +56,7 @@ public class Main {
 
     private static int fileCounter = 1;
     // Takes a graphviz dot-compatible string, generates a .gv and then runs dot on it.
+    @SuppressWarnings("Duplicates")
     private static void gvToFile(String gvStr) throws IOException {
         // Count lines in gvStr as a measure of size.
         Matcher matcher = Pattern.compile("\r\n|\r|\n").matcher(gvStr);

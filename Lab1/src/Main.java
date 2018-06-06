@@ -45,8 +45,8 @@ public class Main {
     }
     
     private static int fileCounter = 1;
-
     // Takes a graphviz dot-compatible string, generates a .gv and then runs dot on it.
+    @SuppressWarnings("Duplicates")
     private static void gvToFile(String gvStr) throws IOException {
         // Count lines in gvStr as a measure of size. Ironically we do this with regex
         // so with just some extra functionality we could do it with this very package.
