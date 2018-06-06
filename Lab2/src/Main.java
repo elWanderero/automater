@@ -57,7 +57,7 @@ public class Main {
     private static int fileCounter = 1;
     // Takes a graphviz dot-compatible string, generates a .gv and then runs dot on it.
     @SuppressWarnings("Duplicates")
-    private static void gvToFile(String gvStr) throws IOException {
+    private static void gvToFile(String gvStr, String filenameRoot) throws IOException {
         // Count lines in gvStr as a measure of size.
         Matcher matcher = Pattern.compile("\r\n|\r|\n").matcher(gvStr);
         int lineCount = 0;
@@ -68,14 +68,19 @@ public class Main {
             return;
         }
 
-        String suffix = String.valueOf(fileCounter++);
-        String gvFilename = "graph_" + suffix + ".gv";
-        String svgFilename = "graph_" + suffix + ".svg";
+        if ( filenameRoot == null || filenameRoot.isEmpty() )
+            filenameRoot = "graph_" + String.valueOf(fileCounter++);
+        String gvFilename = filenameRoot + ".gv";
+        String svgFilename = filenameRoot + ".svg";
 
         Writer writer = newGraphFileWriter(gvFilename);
         writer.write(gvStr);
         writer.close();
         runDot(gvFilename, svgFilename);
+    }
+
+    private static void gvToFile(String gvStr) throws IOException {
+        gvToFile(gvStr, "");
     }
 
     private static String fixWeirdAssFlowGraphs(String weirdAssFG, String prefix) {
@@ -105,7 +110,7 @@ public class Main {
         flowGraph.addTransitions(lines);
         input.close();
         System.out.println(flowGraph.toString());
-        gvToFile(flowGraph.toGVstring());
+        gvToFile(flowGraph.toGVstring(), "flow_graph");
 
         List<DFA> dfas = new ArrayList<>(specs.length);
         for ( File spec : specs ) {
