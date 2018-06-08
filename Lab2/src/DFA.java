@@ -6,10 +6,11 @@ import static java.lang.String.format;
 public class DFA {
 
     String start = "";
-    Set<String> acceptingNodes = new HashSet<>();
-    Set<String> failNodes = new HashSet<>();
-//    private Map<String, Boolean> allNodes = new HashMap<>();  // boolean is for acceptingness
+    public Set<String> acceptingNodes = new HashSet<>();
+    public Set<String> failNodes = new HashSet<>();
+    public Set<String> allNodes = new HashSet<>();
     public Set<DFAedge> allEdges = new HashSet<>();
+    public Map<String, Set<DFAedge>> edgesByLabel = new HashMap<>();
 
     private static final String line = System.lineSeparator();
 
@@ -40,16 +41,16 @@ public class DFA {
         str.append(format("%nrankdir=LR; size=\"19,11\"%n"));
         str.append(format("node [shape=doublecircle];%n"));
         for ( String node: acceptingNodes )
-            str.append(format("%s; ", node));
+            str.append(format("\"%s\"; ", node));
         str.append(line);
 
         if ( !start.equals("") ) {
             str.append("node [shape=point]; invisibleStart;");
             str.append(format("%nnode [shape=circle];%n"));  // default node shape.
-            str.append(format("invisibleStart->%s;%n", start));
+            str.append(format("invisibleStart->\"%s\";%n", start));
         } else str.append(format("node [shape=circle];%n"));  // default node shape.
         for ( DFAedge e: allEdges )
-            str.append(format("%s->%s [label=\"%s\"];%n", e.q0, e.q1, e.v.equals("eps")?"ε":e.v));
+            str.append(format("\"%s\"->\"%s\" [label=\"%s\"];%n", e.q0, e.q1, e.v.equals("eps")?"ε":e.v));
         return str.append("}").toString();
     }
 
@@ -110,7 +111,10 @@ public class DFA {
             throw new ParseException(err_msg, 0);
         }
 
-        allEdges.add(new DFAedge(stateFrom, edge, stateTo));
+        DFAedge newEdge = new DFAedge(stateFrom, edge, stateTo);
+        edgesByLabel.computeIfAbsent(edge, k -> new HashSet<>());
+        edgesByLabel.get(edge).add(newEdge);
+        allEdges.add(newEdge);
 
     }
 
@@ -161,6 +165,7 @@ public class DFA {
         } else {
             if (accepting) acceptingNodes.add(label);
             else failNodes.add(label);
+            allNodes.add(label);
         }
         if ( starting ) {
             if ( !start.equals("") && ! start.equals(label) ) {

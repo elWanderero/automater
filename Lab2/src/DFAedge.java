@@ -3,9 +3,9 @@ import java.util.Objects;
 // Comparable so that we can sort collections of DFAedge, and search them faster.
 public class DFAedge implements Comparable<DFAedge> {
 
-    public String q0;
-    public String v;
-    public String q1;
+    public final String q0;
+    public final String v;
+    public final String q1;
 
     public DFAedge(String q0, String v, String q1) {
         this.q0 = q0;
@@ -23,7 +23,12 @@ public class DFAedge implements Comparable<DFAedge> {
     }
 
     //  So that we can compare on content not object identity.
-    public boolean equals(DFAedge e2) { return q0.equals(e2.q0) && v.equals(e2.v) && q1.equals(e2.q1); }
+    @Override
+    public boolean equals(Object e2) {
+        return (e2 instanceof DFAedge)
+            ? q0.equals(((DFAedge)e2).q0) && v.equals(((DFAedge)e2).v) && q1.equals(((DFAedge)e2).q1)
+            : super.equals(e2);
+    }
 
     //  So that DFAedges with equal contents get the same hash. This is necessary for
     //  my usage of maps etc. to work as intended.
@@ -32,4 +37,8 @@ public class DFAedge implements Comparable<DFAedge> {
         return Objects.hash(q0, v, q1);
     }
 
+    @Override
+    public String toString() {
+        return String.format("DFAedge{%s, %s, %s}", q0, v, q1);
+    }
 }

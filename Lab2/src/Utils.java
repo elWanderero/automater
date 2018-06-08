@@ -72,12 +72,20 @@ public class Utils {
     static String fixWeirdAssFlowGraphs(String weirdAssFG, String prefix) {
         // Remove internal method prefixes
         String ret = weirdAssFG.replaceAll(prefix+"-", "");
-        return ret.replaceAll("(edge\\s+[^\\s]+\\s+[^\\s]+)\\s+[^\\s]+-[^\\s]+", "$1 eps" );
+        ret = ret.replaceAll("_", "");
+        // Replace external calls with eps
+        ret = ret.replaceAll("(edge\\s+[^\\s]+\\s+[^\\s]+)\\s+[^\\s]+-[^\\s]+", "$1 eps" );
+        // I have know idea what all those undeclared method names "handle" are about. Remove them.
+        ret = ret.replaceAll("\\shandle", " eps");
+        // Remove those weird "java-lang-someException)"
+        return ret.replaceAll("\\s[^\\s]*Exception\\)(\\s|$)", "$1");
     }
 
     static String fixWeirdAssSpecs(String weirdAssFG, String prefix) {
         // Remove internal method prefixes
         String ret = weirdAssFG.replaceAll(prefix+"-", "");
+        // Fix missing arrow dashes: '-x>' => '-x->'
+        ret = ret.replaceAll("([^=-])>", "$1->");
         // Replace external calls with eps
         return ret.replaceAll("-java(-[^\\n]+)*->", "-eps->" );
     }

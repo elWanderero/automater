@@ -6,9 +6,8 @@ import static java.lang.String.format;
 public class FG {
     private static final String line = System.lineSeparator();
 
-    // HashMap requires the key to override hashCode and equals if we want
-    // to map on something other than memory address.
-    public Set<DFAedge> edges = new HashSet<>();
+    public MMMap<String, String, String> edges = new MMMap<>();
+
     public String mainEntryNode;
     public Map<String, String> methodEntryPoints = new HashMap<>();
     public Set<String> returnNodes = new HashSet<>();
@@ -31,7 +30,6 @@ public class FG {
     ////////////////////////////////////////////////////
     //                   toGraphviz                   //
     ////////////////////////////////////////////////////
-    // TODO: Add method names somewhere.
     public String toGVstring() {
         StringBuilder str = new StringBuilder("digraph flow_graph {");
         str.append(format("%nsize=\"19,11\"%n"));
@@ -39,7 +37,7 @@ public class FG {
         // Make return nodes double circles
         str.append(format("node [shape=doublecircle];%n"));
         for ( String node: returnNodes )
-            str.append(format("%s; ", node));
+            str.append(format("\"%s\"; ", node));
         str.append(line);
 
         // Add entry point arrows
@@ -47,14 +45,15 @@ public class FG {
         str.append(format("node [shape=point];%n"));
         for ( String method: methods ) {
             String entry = methodEntryPoints.get(method);
-            str.append(format("%s_entry_indicator; ", entry));
-            startArrows.append(format("%s_entry_indicator->%s [label=\"%s\"];%n", entry, entry, method));
+            str.append(format("\"%s_entry_indicator\"; ", entry));
+            startArrows.append(format("\"%s_entry_indicator\"->\"%s\" [label=\"%s\"];%n", entry, entry, method));
         }
 
         str.append(format("%nnode [shape=circle];%n"));  // default node shape.
         str.append(startArrows);
-        for ( DFAedge e: edges )
-            str.append(format("%s->%s [label=\"%s\"];%n", e.q0, e.q1, e.v.equals("eps")?"ε":e.v));
+        edges.mmmap.forEach((String q0, Map<String, Set<String>> vq1s) -> vq1s.forEach((String v, Set<String> q1s) -> {
+            q1s.forEach(q1 -> str.append(format("\"%s\"->\"%s\" [label=\"%s\"];%n", q0, q1, v.equals("eps")?"ε":v)));
+        }));
         return str.append("}").toString();
     }
 
@@ -70,8 +69,9 @@ public class FG {
             if ( methodEntryPoints.get(nodeMethods.get(node)).equals(node) ) str.append(" entry");
             str.append(line);
         }
-        for ( DFAedge edge : edges )
-            str.append(format("edge %s %s %s%s", edge.q0, edge.q1, edge.v.equals("eps")?"ε":edge.v, line));
+        edges.mmmap.forEach((String q0, Map<String, Set<String>> vq1s) -> vq1s.forEach((String v, Set<String> q1s) -> {
+            q1s.forEach(q1 -> str.append(format("edge %s %s %s%s", q0, q1, v.equals("eps")?"ε":v, line)));
+        }));
         return str.toString();
     }
 
@@ -85,25 +85,26 @@ public class FG {
 
         // Turn edgeStr into Queue of Characters.
         Queue<String> words = new LinkedList<>();
-        for (String str : tmp) words.add(str);
+        words.addAll(Arrays.asList(tmp));
 
         // Empty edge ok, just doesn't do anything
         if ( words.isEmpty() ) return;
 
-        boolean dbTmp = false;  // db
         try {
             String next = removeAndCheckNonempty(words);
-            if (next.equals("node")) parseNode(words);
-            else if (next.equals("edge")) parseEdge(words);
-            else throw new ParseException("Expected 'node' or 'edge', got '" + next + "'.", 0);
-        } catch (ParseException e) {
-            if ( !dbTmp ) {
-                for (String methName : methods) System.err.println(methName);
-                dbTmp = true;
+            switch (next) {
+                case "node":
+                    parseNode(words);
+                    break;
+                case "edge":
+                    parseEdge(words);
+                    break;
+                default:
+                    throw new ParseException("Expected 'node' or 'edge', got '" + next + "'.", 0);
             }
+        } catch (ParseException e) {
             e.printStackTrace();
             System.err.println(format("Error in '%s'. %s", edgeStr, e.getMessage()));
-            return;
         }
     }
 
@@ -129,7 +130,7 @@ public class FG {
         if ( !method.equals("eps") && !methods.contains(method) )
             throw new ParseException("Undeclared method name '"+method+"' in edge.", 0);
         checkWordQueueEmpty(words);
-        edges.add(new DFAedge(v0, method, v1));
+        edges.put(v0, method, v1);
     }
 
     private void parseNode(Queue<String> words) throws ParseException {
@@ -185,7 +186,6 @@ public class FG {
     private static void checkLabelOk(String label) throws ParseException {
         if ( label.equals("node") || label.equals("edge") || label.equals("meth") || label
                 .equals("entry") || label.equals("ret") || label.equals("") ) {
-            String err_msg = "Illegal label '"+label+"'.";
             throw new ParseException("Illegal label '"+label+"'.", 0);
         }
         if ( label.contains("(") || label.contains(")") )
